@@ -3,15 +3,13 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from src.UI2 import Ui_MainWindow  # 假设 UI 文件位于 src/UI2.py 中
 import sys
+import win32com
 
 class MainWindow(QMainWindow):
 
     def r2bom(self, rw):
-        try:
-            print(f"调用 R2BOM 函数，参数为 {rw}")
-            # 在这里实现 R2BOM 函数的具体逻辑
-        except Exception as e:
-            print(f"R2BOM 函数执行时发生错误: {e}")
+        pass
+
 
     def __init__(self):
         super().__init__()
@@ -24,7 +22,7 @@ class MainWindow(QMainWindow):
             if button:
                 button.clicked.connect(lambda checked, rw=i: self.r2bom(rw))
 
-def create_ui():
+    def create_ui():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
