@@ -3,7 +3,9 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from src.UI2 import Ui_MainWindow  # 假设 UI 文件位于 src/UI2.py 中
 import sys
-import win32com
+
+import win32com.client
+# from pycatia import CATIA
 
 class MainWindow(QMainWindow):
 
@@ -22,7 +24,7 @@ class MainWindow(QMainWindow):
             if button:
                 button.clicked.connect(lambda checked, rw=i: self.r2bom(rw))
 
-    def create_ui():
+def create_ui():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
