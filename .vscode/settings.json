@@ -1,0 +1,7 @@
+{
+    "marscode.chatLanguage": "cn"
+}
+{
+    "python.autoComplete.extraPaths": ["catia_bom_manager"],
+    "python.analysis.extraPaths": ["catia_bom_manager"]
+}
