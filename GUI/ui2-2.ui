@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1234</width>
+    <height>862</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>1271</width>
+      <height>791</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2"/>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>820</y>
+      <width>271</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1234</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menumenu">
+    <property name="title">
+     <string>menu</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionselect_product"/>
+    <addaction name="actionclear_selected_product"/>
+    <addaction name="actionget_product_info"/>
+    <addaction name="actionrevise_product_info"/>
+    <addaction name="actionGet_BOm"/>
+    <addaction name="separator"/>
+    <addaction name="actioninitialize_all_products"/>
+   </widget>
+   <widget class="QMenu" name="menuabout">
+    <property name="title">
+     <string>about</string>
+    </property>
+    <addaction name="actionAuthor"/>
+    <addaction name="actionwebsite"/>
+    <addaction name="actionsuport_me"/>
+   </widget>
+   <addaction name="menumenu"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuabout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionAuthor">
+   <property name="text">
+    <string>Author</string>
+   </property>
+  </action>
+  <action name="actionwebsite">
+   <property name="text">
+    <string>website</string>
+   </property>
+  </action>
+  <action name="actionsuport_me">
+   <property name="text">
+    <string>suport me</string>
+   </property>
+  </action>
+  <action name="actionselect_product">
+   <property name="text">
+    <string>select product</string>
+   </property>
+  </action>
+  <action name="actionclear_selected_product">
+   <property name="text">
+    <string>clear selected product</string>
+   </property>
+  </action>
+  <action name="actionget_product_info">
+   <property name="text">
+    <string>get product info</string>
+   </property>
+  </action>
+  <action name="actionrevise_product_info">
+   <property name="text">
+    <string>revise product info</string>
+   </property>
+  </action>
+  <action name="actionGet_BOm">
+   <property name="text">
+    <string>Get Bom</string>
+   </property>
+  </action>
+  <action name="actioninitialize_all_products">
+   <property name="text">
+    <string>initialize all products</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
