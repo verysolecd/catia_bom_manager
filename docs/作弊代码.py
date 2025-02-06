@@ -1,15 +1,16 @@
 # 创建虚拟环境
-python -m venv .env
+python -m venv .venv
 # 激活虚拟环境（Windows）
-.\.env\Scripts\activate
-
+Set-ExecutionPolicy Bypass -Scope Process
+.\.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 # 安装包，-e表示便携安装
 pip install -e .
 
 
 
-
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
+
 
 
 
