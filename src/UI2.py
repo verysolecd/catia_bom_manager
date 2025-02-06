@@ -6,6 +6,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 from PyQt5.QtGui import QPixmap
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         try:
@@ -13,21 +14,18 @@ class Ui_MainWindow(object):
             MainWindow.resize(1920, 1080)
             self.centralwidget = QtWidgets.QWidget(MainWindow)
             self.centralwidget.setObjectName("centralwidget")
-            
+
             main_layout = QHBoxLayout(self.centralwidget)
             tab_layout = QVBoxLayout()
             right_layout = QVBoxLayout()
             button_layout = QVBoxLayout()
             pic_layout = QHBoxLayout()
-            
-            
+
             main_layout.addLayout(tab_layout, 5)
             main_layout.addLayout(right_layout, 1)
             right_layout.addLayout(button_layout, 1)
-            right_layout.addLayout(pic_layout, 1)            
-            
-            
-            
+            right_layout.addLayout(pic_layout, 1)
+
             # 1 创建表格部件并使用布局管理器
             self.tableWidget = QtWidgets.QTableWidget()
             self.tableWidget.setRowCount(24)  # 设置表格的行数
@@ -52,11 +50,13 @@ class Ui_MainWindow(object):
             self.tableWidget.setHorizontalHeaderLabels(header_labels)
             # 设置表格头部背景颜色为灰色
             header = self.tableWidget.horizontalHeader()
-            header.setStyleSheet("QHeaderView::section { background-color: #808080; color: white; }")
+            header.setStyleSheet(
+                "QHeaderView::section { background-color: #808080; color: white; }")
             for row in range(self.tableWidget.rowCount()):
                 for col in [0, 1, 2, 4, 6, 8, 10, 12]:  # 第1、3、5列不可编辑
                     item = QtWidgets.QTableWidgetItem()
-                    item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    item.setFlags(QtCore.Qt.ItemIsSelectable |
+                                  QtCore.Qt.ItemIsEnabled)
                     item.setBackground(QtGui.QColor(200, 200, 200))  # 浅灰色
                     self.tableWidget.setItem(row, col, item)
             self.tableWidget.resizeColumnsToContents()
@@ -77,7 +77,8 @@ class Ui_MainWindow(object):
             imgpath = 'resources/icons/IDcard.jpg'
             pixmap = QPixmap(imgpath)
             if not pixmap.isNull():
-                scaled_pixmap = pixmap.scaled(250, 250, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                scaled_pixmap = pixmap.scaled(
+                    250, 250, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
                 wxpic = QLabel()
                 wxpic.setPixmap(scaled_pixmap)
                 wxpic.setAlignment(QtCore.Qt.AlignCenter)
