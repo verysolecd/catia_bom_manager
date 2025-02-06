@@ -6,6 +6,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
 from PyQt5.QtGui import QPixmap
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         try:
@@ -14,37 +15,44 @@ class Ui_MainWindow(object):
             self.centralwidget = QtWidgets.QWidget(MainWindow)
             self.centralwidget.setObjectName("centralwidget")
             main_layout = QHBoxLayout(self.centralwidget)
+            tab_layout = QVBoxLayout()
+            right_layout = QVBoxLayout()
+            pic_layout = QVBoxLayout()
+            button_layout = QVBoxLayout()
+
             # 创建表格部件并使用布局管理器
             self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
             self.tableWidget.setRowCount(24)  # 设置表格的行数
             self.tableWidget.setColumnCount(14)  # 设置表格的列数
             self.tableWidget.setObjectName("tableWidget")
-            main_layout.addWidget(self.tableWidget, stretch=8)
-            right_layout = QVBoxLayout()
+            tab_layout.addWidget(self.tableWidget, stretch=8)
+
             header_labels = [
-            "质量\nMass",
-            "厚度\nThickness",
-            "零件号\nPartnumber",
-            "更改\n件号",
-            "英文名称\nNomenclature",
-            "更改\n英文名",
-            "中文名称\nDefinition",
-            "更改\n中文名",
-            "实例名\nInstanceName",
-            "更改\n实例名",
-            "材料\nmaterial",
-            "定义\n材料",
-            "密度\nMaterial",
-            "更改\n密度"
+                "质量\nMass",
+                "厚度\nThickness",
+                "零件号\nPartnumber",
+                "更改\n件号",
+                "英文名称\nNomenclature",
+                "更改\n英文名",
+                "中文名称\nDefinition",
+                "更改\n中文名",
+                "实例名\nInstanceName",
+                "更改\n实例名",
+                "材料\nmaterial",
+                "定义\n材料",
+                "密度\nMaterial",
+                "更改\n密度"
             ]
             self.tableWidget.setHorizontalHeaderLabels(header_labels)
             # 设置表格头部背景颜色为灰色
             header = self.tableWidget.horizontalHeader()
-            header.setStyleSheet("QHeaderView::section { background-color: #808080; color: white; }")
+            header.setStyleSheet(
+                "QHeaderView::section { background-color: #808080; color: white; }")
             for row in range(self.tableWidget.rowCount()):
                 for col in [0, 1, 2, 4, 6, 8, 10, 12]:  # 第1、3、5列不可编辑
                     item = QtWidgets.QTableWidgetItem()
-                    item.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    item.setFlags(QtCore.Qt.ItemIsSelectable |
+                                  QtCore.Qt.ItemIsEnabled)
                     item.setBackground(QtGui.QColor(200, 200, 200))  # 浅灰色
                     self.tableWidget.setItem(row, col, item)
             self.tableWidget.resizeColumnsToContents()
@@ -52,20 +60,21 @@ class Ui_MainWindow(object):
             for col in range(self.tableWidget.columnCount()):
                 header.setSectionResizeMode(col, QtWidgets.QHeaderView.Stretch)
             # 创建按钮并使用布局管理器
-            button_layout = QVBoxLayout()
+
             for i, text in enumerate([
-               "1 选择待修改产品", "2 释放待修改产品", "3 初始化产品模板",
-            "4 读取选择的产品", "5 修改选择的产品", "6 遍历生成产品BOM"
+                "1 选择待修改产品", "2 释放待修改产品", "3 初始化产品模板",
+                "4 读取选择的产品", "5 修改选择的产品", "6 遍历生成产品BOM"
             ]):
-                button = self.create_button(i, text,)                
+                button = self.create_button(i, text,)
                 setattr(self, f"pushButton_{i+1}", button)  # 关键修复
                 button_layout.addWidget(button)
-            right_layout.addLayout(button_layout, stretch=8)           
+            right_layout.addLayout(button_layout, stretch=8)
             # 第三部分：图片
             imgpath = 'resources/icons/IDcard.jpg'
             pixmap = QPixmap(imgpath)
             if not pixmap.isNull():
-                scaled_pixmap = pixmap.scaled(250, 250, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                scaled_pixmap = pixmap.scaled(
+                    250, 250, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
                 wxpic = QLabel()
                 wxpic.setPixmap(scaled_pixmap)
                 wxpic.setAlignment(QtCore.Qt.AlignCenter)
@@ -73,7 +82,9 @@ class Ui_MainWindow(object):
             else:
                 print(f"Failed to load image: {imgpath}")
 
+            main_layout.addLayout(tab_layout, stretch=2)
             main_layout.addLayout(right_layout, stretch=2)
+
             MainWindow.setCentralWidget(self.centralwidget)
             self.statusbar = QtWidgets.QStatusBar(MainWindow)
             self.statusbar.setObjectName("statusbar")
@@ -93,7 +104,7 @@ class Ui_MainWindow(object):
             self.menubar.addAction(self.menucatia.menuAction())
             self.menubar.addAction(self.menu.menuAction())
             self.menubar.addAction(self.menu_2.menuAction())
-            self.menubar.addAction(self.menu_3.menuAction())           
+            self.menubar.addAction(self.menu_3.menuAction())
             QtCore.QMetaObject.connectSlotsByName(MainWindow)
         except Exception as e:
             print(f"Error setting up UI: {e}")
