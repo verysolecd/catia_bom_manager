@@ -7,6 +7,8 @@ from src.data_processor import TDM
 
 import win32com.client
 # from pycatia import CATIA
+
+
 class APPUI(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -23,6 +25,7 @@ class APPUI(QMainWindow):
             button.clicked.connect(lambda checked, ind=idx: self.BTNF(ind))
 
         print("Loaded buttons:", [btn.objectName() for btn in self.buttons])
+
     def BTNF(self, rw):
 
         print(f"Button {rw} clicked")
@@ -48,10 +51,14 @@ class APPUI(QMainWindow):
         elif rw == 6:
             # TDM.select_to_modify()
             pass
+
+
 def create_ui():
     Prog = QApplication(sys.argv)
-    progwindow= APPUI()
+    progwindow = APPUI()
     progwindow.show()
     sys.exit(Prog.exec_())
+
+
 if __name__ == "__main__":
     create_ui()
