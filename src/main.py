@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from src.UI2 import Ui_MainWindow  # 假设 UI 文件位于 src/UI2.py 中
+from src.UI2 import Ui_MainWindow
 import sys
 # import src.catia_Processor as PDM
 from src.data_processor import TDM
