@@ -27,10 +27,6 @@ http://pypi.mirrors.opencas.cn/simple/           中科院
 https://pypi.tuna.tsinghua.edu.cn/simple/       清华大学
 
 
-
-
-
-
 GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
 # 初始化本地Git仓库
 git init
