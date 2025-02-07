@@ -74,7 +74,7 @@ class Ui_MainWindow(object):
                 setattr(self, f"pushButton_{i + 1}", button)
                 button_layout.addWidget(button)
             # 3 第三部分：图片
-            imgpath = 'resources/icons/IDcard.jpg'
+            imgpath = 'resources/icons/wxpic.png'
             pixmap = QPixmap(imgpath)
             if not pixmap.isNull():
                 scaled_pixmap = pixmap.scaled(
