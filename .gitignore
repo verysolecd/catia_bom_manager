@@ -27,8 +27,7 @@ share/python-wheels/
 MANIFEST
 CBM.egg-info/
 .vscode/
-.venv/
-.env
+
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -111,6 +110,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env/
+.venv/
 
 
 # Spyder project settings
