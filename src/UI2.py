@@ -3,10 +3,11 @@
 # Created by: PyQt5 UI code generator 5.15.11
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGridLayout, QDockWidget
 from PyQt5.QtGui import QPixmap
 
-
+# 全局变量
+prd_2rw = None
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         try:
@@ -16,20 +17,23 @@ class Ui_MainWindow(object):
             self.centralwidget.setObjectName("centralwidget")
 
             main_layout = QHBoxLayout(self.centralwidget)
+            self.centralwidget.setLayout(main_layout)
             tab_layout = QVBoxLayout()
             right_layout = QVBoxLayout()
-            button_layout = QVBoxLayout()
+            button_layout = QGridLayout()
             pic_layout = QHBoxLayout()
 
             main_layout.addLayout(tab_layout, 5)
             main_layout.addLayout(right_layout, 1)
-            right_layout.addLayout(button_layout, 1)
-            right_layout.addLayout(pic_layout, 1)
+            right_layout.addLayout(button_layout, 2)
+            right_layout.addLayout(pic_layout, 2)
 
             # 1 创建表格部件并使用布局管理器
             self.tableWidget = QtWidgets.QTableWidget()
-            self.tableWidget.setRowCount(24)  # 设置表格的行数
-            self.tableWidget.setColumnCount(14)  # 设置表格的列数
+            crow = 30
+            ccol = 14
+            self.tableWidget.setRowCount(crow)  # 设置表格的行数
+            self.tableWidget.setColumnCount(ccol)  # 设置表格的列数
             self.tableWidget.setObjectName("tableWidget")
             header_labels = [
                 "质量\nMass",
@@ -67,12 +71,13 @@ class Ui_MainWindow(object):
             tab_layout.addWidget(self.tableWidget)
             # 2 创建按钮并使用布局管理器
             for i, text in enumerate([
-                "1 选择待修改产品", "2 释放待修改产品", "3 初始化产品模板",
-                "4 读取选择的产品", "5 修改选择的产品", "6 遍历生成产品BOM"
+                "选择\n产品", "释放\n修改产品", "初始化\n产品",
+                "读取\n产品", "修改\n产品", "生成\n产品BOM"
             ]):
                 button = self.create_button(i, text)
+                button.setFixedSize(100, 100)
                 setattr(self, f"pushButton_{i + 1}", button)
-                button_layout.addWidget(button)
+                button_layout.addWidget(button, i // 3, i % 3)
             # 3 第三部分：图片
             imgpath = 'resources/icons/wxpic.png'
             pixmap = QPixmap(imgpath)
@@ -82,13 +87,15 @@ class Ui_MainWindow(object):
                 wxpic = QLabel()
                 wxpic.setPixmap(scaled_pixmap)
                 wxpic.setAlignment(QtCore.Qt.AlignCenter)
-                pic_layout.addWidget(wxpic, stretch=2)
+                pic_layout.addWidget(wxpic)
             else:
                 print(f"Failed to load image: {imgpath}")
             MainWindow.setCentralWidget(self.centralwidget)
             self.statusbar = QtWidgets.QStatusBar(MainWindow)
             self.statusbar.setObjectName("statusbar")
             MainWindow.setStatusBar(self.statusbar)
+            self.statusbar.showMessage("ready for use")
+            self.update_statusbar()
             self.menubar = QtWidgets.QMenuBar(MainWindow)
             self.menubar.setGeometry(QtCore.QRect(0, 0, 1387, 32))
             self.menubar.setObjectName("menubar")
@@ -117,6 +124,24 @@ class Ui_MainWindow(object):
         font.setPointSize(14)  # 设置字体大小为12
         button.setFont(font)
         return button
+
+    def update_statusbar(self):
+        global prd_2rw
+        if prd_2rw is None:
+            self.statusbar.showMessage("未选择产品")
+        else:
+            msg = prd_2rw.name
+            self.statusbar.showMessage(msg)
+
+    def on_dock_location_changed(self):
+        # 获取当前停靠窗口的位置
+        dock_widget = self.sender()
+        location = MainWindow.dockWidgetArea(dock_widget)
+
+        # 如果停靠窗口停靠在主窗口的边缘，将其最大化
+        if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
+            dock_widget.setFloating(False)
+            dock_widget.showMaximized()
 
     # def retranslateUi(self, MainWindow):
     #     _translate = QtCore.QCoreApplication.translate
