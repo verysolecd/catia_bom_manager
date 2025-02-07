@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
 
-class TDM:
+
+class TDM():
     def __init__(self, tableWidget):
         self.tableWidget = tableWidget
     def read_table(self):

@@ -8,8 +8,6 @@ from src.data_processor import TDM
 import win32com.client
 # from pycatia import CATIA
 
-
-
 class APPUI(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -24,7 +22,6 @@ class APPUI(QMainWindow):
                 self.buttons.append(button)
         for idx, button in enumerate(self.buttons, start=1):
             button.clicked.connect(lambda checked, ind=idx: self.BTNF(ind))
-
         print("Loaded buttons:", [btn.objectName() for btn in self.buttons])
 
     def BTNF(self, rw):
@@ -32,6 +29,9 @@ class APPUI(QMainWindow):
         print(f"Button {rw} clicked")
         if rw == 1:
             # TDM.init_template()
+            b_dict = {}
+            root_prd = None
+            ini_prd(root_prd, b_dict)
             pass
         elif rw == 2:
             # TDM.read_selected()
@@ -40,6 +40,7 @@ class APPUI(QMainWindow):
             # TDM.modify_selected()
             pass
         elif rw == 4:
+
             my_array = [1, 2, 3, 4, 5]
             orow = 1
             start_col = 1
