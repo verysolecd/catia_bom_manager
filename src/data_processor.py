@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidgetItem
 from src.UI2 import Ui_MainWindow
 
 
 class ClassTDM():
     def __init__(self, tableWidget):
         self.tableWidget = tableWidget
+
     def read_table(self):
         """
         从 tableWidget 中读取数据并返回一个二维数组
