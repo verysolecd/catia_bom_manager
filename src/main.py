@@ -40,6 +40,37 @@ class APP(QMainWindow):
             # TDM.modify_selected()
             pass
         elif rw == 4:
+
+            #     On Error Resume Next
+            # Set prd2wt = whois2rv() '弹窗说明读取对象
+            # If Err.Number <> 0 Then
+            # Err.Clear
+            #  aMsgBox "没有要读取的产品"
+            # Exit Sub
+            # End If
+            # On Error GoTo 0
+            # Dim Prd2Read: Set Prd2Read = prd2wt
+            # Set rng = xlsht.Range(xlsht.Cells(3, 1), xlsht.Cells(50, 14)): rng.ClearContents
+            #     currRow = startrow
+            #     Arry2sht infoPrd(Prd2Read), xlsht, currRow
+            # Set children = Prd2Read.Products
+            #     For i = 1 To children.Count
+            #      currRow = i + startrow
+            #      Arry2sht infoPrd(children.Item(i)), xlsht, currRow
+            #     Next
+            # Set Prd2Read = Nothing
+
+
+
+
+
+
+
+
+
+
+
+
             PDM = ClassPDM()
             oPrd = PDM.rootPrd
             my_array = PDM.attDefault(oPrd)
@@ -63,7 +94,6 @@ def create_ui():
     progwindow = APP()
     progwindow.show()
     sys.exit(Prog.exec_())
-
 
 if __name__ == "__main__":
     create_ui()
