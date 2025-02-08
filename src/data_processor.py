@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem
+from src.UI2 import Ui_MainWindow
 
 
-class TDM():
+class ClassTDM():
     def __init__(self, tableWidget):
         self.tableWidget = tableWidget
     def read_table(self):
@@ -24,9 +25,10 @@ class TDM():
 
         # return data
 
-
-    def inject_data(self, tableWidget, row, start_col, array):
-        for col, cell_data in enumerate(array):
-            item = QTableWidgetItem(str(cell_data))
-            tableWidget.setItem(row, start_col + col, item)
-            print(f"Set item at row {row}, col {start_col + col} with value {cell_data}")
+    def inject_data(self, row, start_col, array):
+        for ind, aItem in enumerate(array):
+            item = QTableWidgetItem(str(aItem))
+            self.tableWidget.setItem(row, start_col + ind * 2, item)
+            toUIm = Ui_MainWindow()
+            toUIm.TabReadOnly(self.tableWidget)
+            print(f"已经写入第{row}行数据")
