@@ -4,10 +4,14 @@ from src.UI2 import Ui_MainWindow
 import sys
 from src.catia_processor import ClassPDM
 from src.data_processor import ClassTDM
+from src.catia_processor import ClassPDM
+from src.data_processor import ClassTDM
 
 import win32com.client
 # from pycatia import CATIA
 
+
+class APP(QMainWindow):
 
 class APP(QMainWindow):
     def __init__(self):
@@ -23,6 +27,7 @@ class APP(QMainWindow):
                 self.buttons.append(button)
         for idx, button in enumerate(self.buttons, start=1):
             button.clicked.connect(lambda checked, ind=idx: self.BTNF(ind))
+        # print("Loaded buttons:", [btn.objectName() for btn in self.buttons])
         # print("Loaded buttons:", [btn.objectName() for btn in self.buttons])
 
     def BTNF(self, rw):
@@ -80,6 +85,11 @@ class APP(QMainWindow):
             TDM = ClassTDM(self.ui.tableWidget)
             TDM.inject_data(orow, start_col, my_array)  # self.ui.tableWidget,
 
+            start_col = 2
+            print({start_col})
+            TDM = ClassTDM(self.ui.tableWidget)
+            TDM.inject_data(orow, start_col, my_array)  # self.ui.tableWidget,
+
             # pass
         elif rw == 5:
             # TDM.select_to_modify()
@@ -91,6 +101,7 @@ class APP(QMainWindow):
 
 def create_ui():
     Prog = QApplication(sys.argv)
+    progwindow = APP()
     progwindow = APP()
     progwindow.show()
     sys.exit(Prog.exec_())

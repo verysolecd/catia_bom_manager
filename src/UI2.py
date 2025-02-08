@@ -11,6 +11,7 @@ prd_2rw = None
 menu_names = ["菜单", "设置", "关于", "作者"]
 
 
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         try:
@@ -167,6 +168,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.statusbar.setFixedHeight(40)
+        self.statusbar.setFixedHeight(40)
         self.statusbar.setStyleSheet(
             "QStatusBar::item { font-size: 50px; font-family: Arial; }")
         self.statusbar.showMessage("ready for use")
@@ -205,6 +207,13 @@ class Ui_MainWindow(object):
             dock_widget.setFloating(False)
             dock_widget.showMaximized()
 
+    # def retranslateUi(self, MainWindow):
+    #     _translate = QtCore.QCoreApplication.translate
+    #     MainWindow.setWindowTitle(_translate("MainWindow", "程序窗口"))
+    #     for menu_name, title in menu_names.items():
+    #         menu = getattr(self, menu_name, None)
+    #         if menu:
+    #             menu.setTitle(_translate("MainWindow", title))
     # def retranslateUi(self, MainWindow):
     #     _translate = QtCore.QCoreApplication.translate
     #     MainWindow.setWindowTitle(_translate("MainWindow", "程序窗口"))
