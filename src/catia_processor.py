@@ -161,22 +161,21 @@ class ClassPDM():
 # allPN = {}
 # global_var.global_var.attNames = ["iMaterial", "iMass", "iThickness", "iDensity", "iBodys"]
 
-
-# def has_att(colls, name):
-#     """
-#     检查集合中是否存在指定名称的元素
-#     """
-#     try:
-#         if isinstance(colls, (list, tuple)):
-#             for item in colls:
-#                 if hasattr(item, 'Name') and item.Name == name:
-#                     return True
-#         elif hasattr(colls, 'Item'):
-#             colls.Item(name)
-#             return True
-#     except Exception:
-#         return False
-#     return False
+    def has_att(colls, name):
+        """
+        检查集合中是否存在指定名称的元素
+        """
+        try:
+            if isinstance(colls, (list, tuple)):
+                for item in colls:
+                    if hasattr(item, 'Name') and item.Name == name:
+                        return True
+            elif hasattr(colls, 'Item'):
+                colls.Item(name)
+                return True
+        except Exception:
+            return False
+        return False
 
 
 # def ini_prd(o_prd, o_dict):
@@ -318,11 +317,10 @@ class ClassPDM():
 #         if o_formula.Value != rl_source:
 #             o_formula.Modify(rl_source)
 
+    def no_prd():
+        """
+        释放待修改的产品
+        """
 
-# def no_prd():
-#     """
-#     释放待修改的产品
-#     """
-#     global prd2wt
-#     prd2wt = None
-#     messagebox.showinfo("提示", "已释放待修改的产品")
+        global_var.prd2rw = None
+        messagebox.showinfo("提示", "已释放待修改的产品")
