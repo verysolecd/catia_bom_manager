@@ -7,9 +7,7 @@ from itertools import count
 from functools import partial
 from src.data_processor import ClassTDM
 from src.catia_processor import ClassPDM
-
 import win32com.client
-
 
 
 class APP(QMainWindow):
@@ -17,41 +15,50 @@ class APP(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui._setup_ui(self)
-        self._setup_buttons()
+        self.setup_buttons()
 
-    def _setup_buttons(self):
-        self.buttons = self._get_Buttons()  # 1. 动态发现按钮
-        self._connect_button_handlers()  # 2. 绑定智能事件处理
+    def setup_buttons(self):
+        self.buttons = self.get_Buttons()  # 1. 动态发现按钮
+        self.connect_button_handlers()  # 2. 绑定智能事件处理
 
-    def _get_Buttons(self):
+    def get_Buttons(self):
+        # return [self.ui.pushButton_0,
+        #         self.ui.pushButton_1,
+        #         self.ui.pushButton_2,
+        #         self.ui.pushButton_3,
+        #         self.ui.pushButton_4,
+        #         self.ui.pushButton_5]
+
+
         return [
-            btn for i in count(0)
+            btn for i in range(10)  # 使用有限范围代替无限count
             if (btn := getattr(self.ui, f"pushButton_{i}", None)) is not None
-        ][:6]  # 安全截断最多6个按钮
+        ][:6]
 
-    def _connect_button_handlers(self):
+    def connect_button_handlers(self):
         for idx, btn in enumerate(self.buttons):
-            # 使用partial避免闭包问题
-            btn.clicked.connect(partial(self._handle_button_action, idx))
+            try:
+                # 使用partial避免闭包问题
+                btn.clicked.connect(partial(self.handle_button_action, idx))
+                print(f"成功连接按钮 {idx} 的点击事件")
+            except Exception as e:
+                print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
-    def _handle_button_action(self, button_id):
-        handler = getattr(self, f"_handle_button_{button_id}", None)
+    def handle_button_action(self, button_id):
+        handler = getattr(self, f"handle_button_{button_id}", None)
         if handler and callable(handler):
             try:
                 handler()
             except Exception as e:
-                self._log_error(f"按钮 {button_id} 操作失败: {str(e)}")
+                self.log_error(f"按钮 {button_id} 操作失败: {str(e)}")
         else:
-            self._log_error(f"未定义按钮 {button_id} 的处理方法")
+            self.log_error(f"未定义按钮 {button_id} 的处理方法")
 
-    def _log_error(self, message):
+    def log_error(self, message):
         print(f"错误: {message}")
 
     def handle_button_0(self):
-        # b_dict = {}
-        # root_prd = None
-       # ini_prd(root_prd, b_dict)
-       pass
+        pass
 
     def handle_button_1(self):
         pass  # 暂时不做任何操作
@@ -74,11 +81,12 @@ class APP(QMainWindow):
     def handle_button_5(self):
         pass
 
-def create_ui():
+
+def StartAPP():
     Prog = QApplication(sys.argv)
     progwindow = APP()
     progwindow.show()
     sys.exit(Prog.exec_())
 
 if __name__ == "__main__":
-    create_ui()
+    StartAPP()

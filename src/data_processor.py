@@ -31,5 +31,5 @@ class ClassTDM():
             item = QTableWidgetItem(str(aItem))
             self.tableWidget.setItem(row, start_col + ind * 2, item)
             toUIm = Ui_MainWindow()
-            toUIm.TabReadOnly(self.tableWidget)
+            toUIm.set_table_readonly(self.tableWidget)
             print(f"已经写入第{row}行数据")

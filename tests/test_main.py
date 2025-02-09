@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 from src.UI2 import Ui_MainWindow  # 假设 UI 文件位于 src/UI2.py 中
 import sys
 #import src.catia_Processor as PDM
-from src.data_processor import TDM 
+from src.data_processor import ClassTDM
 
 import win32com.client
 # from pycatia import CATIA
@@ -11,7 +11,7 @@ class APPUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
+        self.ui._setup_ui(self)
         # 动态为每个按钮绑定函数
         for i in range(1, 6):
             button_name = f"pushButton_{i}"

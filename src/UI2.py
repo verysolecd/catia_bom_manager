@@ -27,29 +27,27 @@ header_labels = [
 ]
 
 class Ui_MainWindow(object):
-    def _setup_ui(self, main_window):
+    def _setup_ui(self, mainwindow):
         try:
-            main_window.setObjectName("MainWindow")
-            main_window.resize(1920, 1080)
-            self.centralwidget = QtWidgets.QWidget(main_window)
+            self.mainwindow = mainwindow
+            self.mainwindow.setObjectName("mainwindow")
+            self.mainwindow.resize(1920, 1080)
+            self.centralwidget = QtWidgets.QWidget(mainwindow)
             self.centralwidget.setObjectName("centralwidget")
-            main_window.setCentralWidget(self.centralwidget)
+            self.mainwindow.setCentralWidget(self.centralwidget)
             # 使用布局管理器
-            (main_layout,
-             tab_layout,
-             button_layout,
-             pic_layout) = self._init_layout()
-            self._add_table(tab_layout)  # 1 创建表格部件并使用布局管理器
-            self._add_buttons(button_layout)  # 2 创建按钮并使用布局管理器
-            self._add_wxpic(pic_layout)    # 3 第三部分：图片
-            self._add_statusbar(main_window)  # 3 设置状态栏
-            self._add_menubar(main_window)  # 4 设置菜单栏
+            main_layout, tab_layout, button_layout, pic_layout = self.init_layout()
+            self.add_table(tab_layout)  # 1 创建表格部件并使用布局管理器
+            self.add_buttons(button_layout)  # 2 创建按钮并使用布局管理器
+            self.add_wxpic(pic_layout)    # 3 第三部分：图片
+            self.add_statusbar(mainwindow)  # 3 设置状态栏
+            self.add_menubar(mainwindow)  # 4 设置菜单栏
             self.centralwidget.setLayout(main_layout)
             # self.retranslateUi(MainWindow)
         except Exception as e:
             print(f"Error setting up UI: {e}")
 
-    def _init_layout(self):
+    def init_layout(self):
         main_layout = QHBoxLayout(self.centralwidget)
         tab_layout = QVBoxLayout()
         right_layout = QVBoxLayout()
@@ -66,20 +64,20 @@ class Ui_MainWindow(object):
                 pic_layout
                 )
 
-    def _add_menubar(self, main_window):
-        self.menubar = QtWidgets.QMenuBar(main_window)
+    def add_menubar(self, mainwindow):
+        self.menubar = QtWidgets.QMenuBar(mainwindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1387, 32))
         self.menubar.setObjectName("menubar")
-        main_window.setMenuBar(self.menubar)
+        mainwindow.setMenuBar(self.menubar)
         for i, name in enumerate(menu_names):
             menu = QtWidgets.QMenu(self.menubar)
             menu.setObjectName(f"oMenu_{i}")
             menu.setTitle(name)
             setattr(self, f"oMenu_{i}", menu)
             self.menubar.addAction(menu.menuAction())
-        QtCore.QMetaObject.connectSlotsByName(main_window)
+        QtCore.QMetaObject.connectSlotsByName(mainwindow)
 
-    def _add_buttons(self, button_layout):
+    def add_buttons(self, button_layout):
         for i, desc in enumerate([
             "选择\n产品", "释放\n修改产品", "初始化\n产品",
             "读取\n产品", "修改\n产品", "生成\n产品BOM"
@@ -98,7 +96,7 @@ class Ui_MainWindow(object):
         button.setObjectName(f"pushButton_{index}")
         return button
 
-    def _add_table(self, tab_layout):
+    def add_table(self, tab_layout):
         self.tableWidget = QtWidgets.QTableWidget()
         crow = 30
         ccol = 14
@@ -119,14 +117,14 @@ class Ui_MainWindow(object):
             }
             """
         self.tableWidget.horizontalHeader().setStyleSheet(header_style)
-        self._set_table_readonly(self.tableWidget)  # 设置只读
+        self.set_table_readonly(self.tableWidget)  # 设置只读
         self.tableWidget.itemChanged.connect(
-            lambda: self._adjust_table_column_width(self.tableWidget))
-        self._adjust_table_column_width(self.tableWidget)  # 根据表头内容调整列宽
+            lambda: self.adjust_tab_width(self.tableWidget))
+        self.adjust_tab_width(self.tableWidget)  # 根据表头内容调整列宽
 
         tab_layout.addWidget(self.tableWidget)
 
-    def _adjust_table_column_width(self, table_widget):
+    def adjust_tab_width(self, table_widget):
         header = table_widget.horizontalHeader()
         col_count = table_widget.columnCount()
         header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
@@ -154,7 +152,7 @@ class Ui_MainWindow(object):
                 default_w = max(avail_width // col_count, 50)
                 header.setSectionSizes([default_w] * col_count)
 
-    def _set_table_readonly(self, table_widget):
+    def set_table_readonly(self, table_widget):
         readonly_cols = [0, 2, 4, 6, 8, 10, 12, 13]
         for col in readonly_cols:
             for row in range(table_widget.rowCount()):
@@ -167,17 +165,17 @@ class Ui_MainWindow(object):
                 # 设置单元格为只读
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
 
-    def _add_statusbar(self, main_window):
-        self.statusbar = QtWidgets.QStatusBar(main_window)
+    def add_statusbar(self, mainwindow):
+        self.statusbar = QtWidgets.QStatusBar(mainwindow)
         self.statusbar.setObjectName("statusbar")
-        main_window.setStatusBar(self.statusbar)
+        mainwindow.setStatusBar(self.statusbar)
         self.statusbar.setFixedHeight(40)
         self.statusbar.setStyleSheet(
             "QStatusBar::item { font-size: 50px; font-family: Arial; }")
         self.statusbar.showMessage("ready for use")
         self._update_statusbar()
 
-    def _add_wxpic(self, pic_layout):
+    def add_wxpic(self, pic_layout):
         imgpath = 'resources/icons/wxpic.png'
         pixmap = QPixmap(imgpath)
         if not pixmap.isNull():
@@ -198,27 +196,10 @@ class Ui_MainWindow(object):
             msg = prd_2rw.name
             self.statusbar.showMessage(msg)
 
-    def on_dock_location_changed(self):
-        # 获取当前停靠窗口的位置
-        dock_widget = self.sender()
-        location = self.main_window.dockWidgetArea(dock_widget)
-
-        # 如果停靠窗口停靠在主窗口的边缘，将其最大化
-        if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
-            dock_widget.setFloating(False)
-            dock_widget.showMaximized()
-
-    # def retranslateUi(self, MainWindow):
-    #     _translate = QtCore.QCoreApplication.translate
-    #     MainWindow.setWindowTitle(_translate("MainWindow", "程序窗口"))
-    #     for menu_name, title in menu_names.items():
-    #         menu = getattr(self, menu_name, None)
-    #         if menu:
-    #             menu.setTitle(_translate("MainWindow", title))
-    # def retranslateUi(self, MainWindow):
-    #     _translate = QtCore.QCoreApplication.translate
-    #     MainWindow.setWindowTitle(_translate("MainWindow", "程序窗口"))
-    #     for menu_name, title in menu_names.items():
-    #         menu = getattr(self, menu_name, None)
-    #         if menu:
-    #             menu.setTitle(_translate("MainWindow", title))
+    # def on_dock_location_changed(self,mainwindow):
+    #      dock_widget = self.sender()
+    #      if self.mainwindow:
+    #         location = self.mainwindow.dockWidgetArea(dock_widget)
+    #         if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
+    #             dock_widget.setFloating(False)
+    #             dock_widget.showMaximized()
