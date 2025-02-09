@@ -5,9 +5,18 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGridLayout, QDockWidget
 from PyQt5.QtGui import QPixmap
-
 # 全局变量
-prd_2rw = None
+from Vars import global_var
+# 自用全局变量
+header_style = """
+            QHeaderView::section {
+                font-size: 18px;
+                font-family: Dengxian;
+                font-weight: bold;
+                color: blue;
+                background-color: #808080;
+            }
+            """
 menu_names = ["菜单", "设置", "关于", "作者"]
 header_labels = [
     "零件号\nPartnumber",
@@ -25,7 +34,11 @@ header_labels = [
     "质量\nMass",
     "厚度\nThickness"
 ]
-
+menu_names = ["菜单", "设置", "关于", "作者"]
+btnames = [
+    "选择\n产品", "释放\n修改产品", "读取\n产品",
+    "修改\n产品", "生成\n产品BOM", "初始化\n产品"
+]
 class Ui_MainWindow(object):
     def _setup_ui(self, mainwindow):
         try:
@@ -43,6 +56,7 @@ class Ui_MainWindow(object):
             self.add_statusbar(mainwindow)  # 3 设置状态栏
             self.add_menubar(mainwindow)  # 4 设置菜单栏
             self.centralwidget.setLayout(main_layout)
+            self.mainwindow.resizeEvent = self.on_resize_event
             # self.retranslateUi(MainWindow)
         except Exception as e:
             print(f"Error setting up UI: {e}")
@@ -78,13 +92,10 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(mainwindow)
 
     def add_buttons(self, button_layout):
-        for i, desc in enumerate([
-            "选择\n产品", "释放\n修改产品", "初始化\n产品",
-            "读取\n产品", "修改\n产品", "生成\n产品BOM"
-        ]):
+        for i, desc in enumerate(btnames):
             button = self._create_button(i, desc)
-            button.setFixedSize(180, 180)
             setattr(self, f"pushButton_{i}", button)
+            button.setFixedSize(180, 180)
             font = QtGui.QFont()
             font.setPointSize(12)  # 设置字体大小为12
             button.setFont(font)
@@ -103,24 +114,12 @@ class Ui_MainWindow(object):
         self.tableWidget.setRowCount(crow)  # 设置表格的行数
         self.tableWidget.setColumnCount(ccol)  # 设置表格的列数
         self.tableWidget.setObjectName("tableWidget")
-
         self.tableWidget.setHorizontalHeaderLabels(header_labels)
-        # 设置表头字体为蓝色加粗体
-        # 设置表格头部背景颜色为灰色
-        header_style = """
-            QHeaderView::section {
-                font-size: 18px;
-                font-family: Dengxian;
-                font-weight: bold;
-                color: blue;
-                background-color: #808080;
-            }
-            """
         self.tableWidget.horizontalHeader().setStyleSheet(header_style)
         self.set_table_readonly(self.tableWidget)  # 设置只读
         self.tableWidget.itemChanged.connect(
             lambda: self.adjust_tab_width(self.tableWidget))
-        self.adjust_tab_width(self.tableWidget)  # 根据表头内容调整列宽
+        self.adjust_tab_width(self.tableWidget)  # 调整列宽
 
         tab_layout.addWidget(self.tableWidget)
 
@@ -151,6 +150,8 @@ class Ui_MainWindow(object):
             else:
                 default_w = max(avail_width // col_count, 50)
                 header.setSectionSizes([default_w] * col_count)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.Interactive)
 
     def set_table_readonly(self, table_widget):
         readonly_cols = [0, 2, 4, 6, 8, 10, 12, 13]
@@ -173,7 +174,7 @@ class Ui_MainWindow(object):
         self.statusbar.setStyleSheet(
             "QStatusBar::item { font-size: 50px; font-family: Arial; }")
         self.statusbar.showMessage("ready for use")
-        self._update_statusbar()
+        self.update_statusbar()
 
     def add_wxpic(self, pic_layout):
         imgpath = 'resources/icons/wxpic.png'
@@ -188,18 +189,22 @@ class Ui_MainWindow(object):
         else:
             print(f"Failed to load image: {imgpath}")
 
-    def _update_statusbar(self):
-        global prd_2rw
-        if prd_2rw is None:
+    def update_statusbar(self):
+        if global_var.prd_2rw is None:
             self.statusbar.showMessage("未选择产品")
         else:
             msg = prd_2rw.name
             self.statusbar.showMessage(msg)
 
-    # def on_dock_location_changed(self,mainwindow):
-    #      dock_widget = self.sender()
-    #      if self.mainwindow:
+    # def on_dock_location_changed(self, mainwindow):
+    #     dock_widget = self.sender()
+    #     if self.mainwindow:
     #         location = self.mainwindow.dockWidgetArea(dock_widget)
     #         if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
     #             dock_widget.setFloating(False)
     #             dock_widget.showMaximized()
+    def on_resize_event(self, event):
+        # 窗口尺寸变化时调用 _adjust_tab_width 方法
+        self.adjust_tab_width(self.tableWidget)
+        # 调用原始的 resizeEvent 方法
+        return QtWidgets.QMainWindow.resizeEvent(self.mainwindow, event)
