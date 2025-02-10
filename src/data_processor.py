@@ -26,10 +26,20 @@ class ClassTDM():
 
         # return data
 
-    def inject_data(self, row, start_col, array):
+    def inject_data(self, row, start_col, data):
         for ind, aItem in enumerate(array):
             item = QTableWidgetItem(str(aItem))
             self.tableWidget.setItem(row, start_col + ind * 2, item)
-            toUIm = Ui_MainWindow()
-            toUIm.set_table_readonly(self.tableWidget)
-            print(f"已经写入第{row}行数据")
+           
+
+        data = [1, 2, 3, 4]  # 假设数组长度与列索引数量一致
+        input_cols = [1, 2, 3, 5]  # 指定的列索引
+        for col_idx, value in zip(input_cols, data):
+            item = QtWidgets.QTableWidgetItem(str(value))
+            self.ui.tableWidget.setItem(rw, col_idx, item)
+            
+            
+            
+        toUIm = Ui_MainWindow()
+        toUIm.set_table_readonly(self.tableWidget)
+        print(f"已经写入第{row}行数据")

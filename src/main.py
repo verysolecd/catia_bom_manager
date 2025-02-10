@@ -27,8 +27,9 @@ class APP(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui._setup_ui(self)
         self.setup_buttons()
-        self.PDM = ClassPDM()
         self.TDM = ClassTDM(self.ui.tableWidget)
+        self.PDM = ClassPDM()
+        self.PDM.catia = self.PDM.connect_to_catia()
 
 
     def setup_buttons(self):
@@ -36,12 +37,6 @@ class APP(QMainWindow):
         self.connect_button_handlers()  # 2. 绑定智能事件处理
 
     def get_Buttons(self):
-        # return [self.ui.pushButton_0,
-        #         self.ui.pushButton_1,
-        #         self.ui.pushButton_2,
-        #         self.ui.pushButton_3,
-        #         self.ui.pushButton_4,
-        #         self.ui.pushButton_5]
         return [
             btn for i in range(10)  # 使用有限范围代替无限count
             if (btn := getattr(self.ui, f"pushButton_{i}", None)) is not None
