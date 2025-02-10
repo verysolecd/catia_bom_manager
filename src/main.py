@@ -6,6 +6,8 @@ from itertools import count
 from functools import partial
 import tkinter as tk
 from tkinter import messagebox
+
+from PyQt5.QtWidgets import QMessageBox
 # COM类
 import win32com.client
 import sys
@@ -27,8 +29,9 @@ class APP(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui._setup_ui(self)
         self.setup_buttons()
-        self.PDM = ClassPDM()
         self.TDM = ClassTDM(self.ui.tableWidget)
+        self.PDM = ClassPDM()
+
 
 
     def setup_buttons(self):
@@ -36,12 +39,6 @@ class APP(QMainWindow):
         self.connect_button_handlers()  # 2. 绑定智能事件处理
 
     def get_Buttons(self):
-        # return [self.ui.pushButton_0,
-        #         self.ui.pushButton_1,
-        #         self.ui.pushButton_2,
-        #         self.ui.pushButton_3,
-        #         self.ui.pushButton_4,
-        #         self.ui.pushButton_5]
         return [
             btn for i in range(10)  # 使用有限范围代替无限count
             if (btn := getattr(self.ui, f"pushButton_{i}", None)) is not None
@@ -57,6 +54,28 @@ class APP(QMainWindow):
                 print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
     def handle_button_action(self, button_id):
+        if not self.PDM.catia:
+            self.catia = self.PDM.connect_to_catia()  # 尝试连接到 CATIA
+            if self.catia:
+                QMessageBox.information(self, "成功", "CATIA 连接成功，继续执行操作。")
+            else:
+                QMessageBox.critical(self, "错误", "CATIA 连接失败，请检查相关设置。")
+                return
+        self.button_run(button_id)
+        # if not self.PDM.catia:
+        #     self.PDM.catia = self.PDM.connect_to_catia()  # 尝试连接到 CATIA
+        #     if self.PDM.catia:
+        #         QMessageBox.information(self, "成功", "CATIA 连接成功，继续执行操作。")
+        #         self.button_run(self, button_id)
+        #     else:
+        #         QMessageBox.critical(self, "错误", "CATIA 连接失败，请检查相关设置。")
+        #         return
+        # else:
+        #     # QMessageBox.information(self, "提示", "已连接到 CATIA，继续执行操作。")
+        #     self.button_run(button_id)
+        #     print("继续执行操作...")
+
+    def button_run(self, button_id):
         handler = getattr(self, f"handle_button_{button_id}", None)
         if handler and callable(handler):
             try:
@@ -65,6 +84,7 @@ class APP(QMainWindow):
                 self.log_error(f"按钮 {button_id} 操作失败: {str(e)}")
         else:
             self.log_error(f"未定义按钮 {button_id} 的处理方法")
+
 
     def log_error(self, message):
         print(f"错误: {message}")

@@ -2,19 +2,24 @@
 # this module is to manage catia data to get or define the product attributes
 from pycatia import catia
 import pycatia
-import tkinter as tk
 from tkinter import messagebox
-
+import win32com.client
 # 全局参数
 from Vars import global_var
-
+from PyQt5.QtWidgets import QMessageBox
 
 class ClassPDM():
     def __init__(self):
-        self.catia = catia()
-        # self.documents = self.catia.documents
-        self.active_document = self.catia.active_document
-        self.rootPrd = self.active_document.product
+        self.catia = None
+        self.active_document = None
+        self.rootPrd = None
+
+    def connect_to_catia(self):
+        try:
+           self.catia = win32com.client.GetActiveObject("CATIA.Application")
+        except Exception as e:
+            self.catia = None
+        return self.catia
 
     def selprd(self):
         self.catia.visible = True
@@ -68,11 +73,6 @@ class ClassPDM():
 #     def ReadAllPrd(self, oPrd):
 #         self.refprd = oPrd.reference_product
 
-
-
-
-
-
     def attDefault(self, oPrd):
         refprd = oPrd.reference_product
         att_default = [refprd.part_number,
@@ -86,7 +86,6 @@ class ClassPDM():
         #         "iDensity", "iMass", "iThickness"]
         # 0    1       2          3       4      5
         # cm iBodys iMaterial iDensity iMass iThickness
-
         refprd = oPrd.reference_product
         att_usp = [None]*6
         att_usp[0] = ""
