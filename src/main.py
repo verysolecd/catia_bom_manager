@@ -1,99 +1,128 @@
+#  Python库类
+from pycatia import catia
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from src.UI2 import Ui_MainWindow
-import sys
-from src.catia_processor import ClassPDM
-from src.data_processor import ClassTDM
-
+from itertools import count
+from functools import partial
+import tkinter as tk
+from tkinter import messagebox
+# COM类
 import win32com.client
-# from pycatia import CATIA
+import sys
+
+
+#  自建类
+from src.UI2 import Ui_MainWindow
+from src.data_processor import ClassTDM
+from src.catia_processor import ClassPDM
+# 全局变量
+from Vars import global_var
+
+from PyQt5.QtWidgets import QMessageBox
 
 
 class APP(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-        # 动态为每个按钮绑定函数
-        self.buttons = []  # 用于存储按钮对象的列表
-        for i in range(6):
-            button_name = f"pushButton_{i+1}"
-            button = getattr(self.ui, button_name, None)
-            if button:
-                self.buttons.append(button)
-        for idx, button in enumerate(self.buttons, start=1):
-            button.clicked.connect(lambda checked, ind=idx: self.BTNF(ind))
-        # print("Loaded buttons:", [btn.objectName() for btn in self.buttons])
-
-    def BTNF(self, rw):
-        print(f"Button {rw} clicked")
-        if rw == 1:
-            # TDM.init_template()
-            b_dict = {}
-            root_prd = None
-            ini_prd(root_prd, b_dict)
-            pass
-        elif rw == 2:
-            # TDM.read_selected()
-            pass
-        elif rw == 3:
-            # TDM.modify_selected()
-            pass
-        elif rw == 4:
-
-            #     On Error Resume Next
-            # Set prd2wt = whois2rv() '弹窗说明读取对象
-            # If Err.Number <> 0 Then
-            # Err.Clear
-            #  aMsgBox "没有要读取的产品"
-            # Exit Sub
-            # End If
-            # On Error GoTo 0
-            # Dim Prd2Read: Set Prd2Read = prd2wt
-            # Set rng = xlsht.Range(xlsht.Cells(3, 1), xlsht.Cells(50, 14)): rng.ClearContents
-            #     currRow = startrow
-            #     Arry2sht infoPrd(Prd2Read), xlsht, currRow
-            # Set children = Prd2Read.Products
-            #     For i = 1 To children.Count
-            #      currRow = i + startrow
-            #      Arry2sht infoPrd(children.Item(i)), xlsht, currRow
-            #     Next
-            # Set Prd2Read = Nothing
+        self.ui._setup_ui(self)
+        self.setup_buttons()
+        self.PDM = ClassPDM()
+        self.TDM = ClassTDM(self.ui.tableWidget)
 
 
+    def setup_buttons(self):
+        self.buttons = self.get_Buttons()  # 1. 动态发现按钮
+        self.connect_button_handlers()  # 2. 绑定智能事件处理
 
+    def get_Buttons(self):
+        # return [self.ui.pushButton_0,
+        #         self.ui.pushButton_1,
+        #         self.ui.pushButton_2,
+        #         self.ui.pushButton_3,
+        #         self.ui.pushButton_4,
+        #         self.ui.pushButton_5]
+        return [
+            btn for i in range(10)  # 使用有限范围代替无限count
+            if (btn := getattr(self.ui, f"pushButton_{i}", None)) is not None
+        ][:6]
 
+    def connect_button_handlers(self):
+        for idx, btn in enumerate(self.buttons):
+            try:
+                # 使用partial避免闭包问题
+                btn.clicked.connect(partial(self.handle_button_action, idx))
+                print(f"成功连接按钮 {idx} 的点击事件")
+            except Exception as e:
+                print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
+    def handle_button_action(self, button_id):
+        handler = getattr(self, f"handle_button_{button_id}", None)
+        if handler and callable(handler):
+            try:
+                handler()
+            except Exception as e:
+                self.log_error(f"按钮 {button_id} 操作失败: {str(e)}")
+        else:
+            self.log_error(f"未定义按钮 {button_id} 的处理方法")
 
+    def log_error(self, message):
+        print(f"错误: {message}")
 
+    def handle_button_0(self):  # 选择产品
+        reply = QMessageBox.question(self, '你想修改哪个产品及其子产品', '是: 选择要修改的产品\n否: 修改根产品\n取消: 退出',
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
+        self.handle_product_selection(reply)
 
+    def handle_button_1(self):  # 释放产品
+        pass
 
+    def handle_button_2(self):  # 读取产品
+        PDM = ClassPDM()
+        oPrd = PDM.rootPrd
+        my_array = PDM.attDefault(oPrd)
+        orow = 0
+        start_col = 0
+        TDM = ClassTDM(self.ui.tableWidget)
+        TDM.inject_data(orow, start_col, my_array)
 
+    def handle_button_3(self):     # 修改产品
+        pass
 
+    def handle_button_4(self):  # 初始化产品
+        reply = QMessageBox.question(self, '你想初始化哪个产品及其子产品', '是: 选择要修改的产品\n否: 初始化根产品\n取消: 退出',
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
+        self.handle_product_selection(reply)
 
-            PDM = ClassPDM()
-            oPrd = PDM.rootPrd
-            my_array = PDM.attDefault(oPrd)
-            orow = 1
-            start_col = 2
-            print({start_col})
-            TDM = ClassTDM(self.ui.tableWidget)
-            TDM.inject_data(orow, start_col, my_array)  # self.ui.tableWidget,
+    def handle_button_5(self):    # 生成BOM
+        pass
 
-            # pass
-        elif rw == 5:
-            # TDM.select_to_modify()
-            pass
-        elif rw == 6:
-            # TDM.select_to_modify()
-            pass
+    def handle_product_selection(self, reply):
+        try:
+            if reply == QMessageBox.Yes:
+                messagebox.showinfo(
+                    "提示", "在catia中选择产品")
+                self.PDM.selprd()
+            elif reply == QMessageBox.No:
+                global_var.Prd2rw = self.PDM.rootPrd
+                print("获取到 rootPrd:", global_var.Prd2rw)
+            else:
+                return
+        except Exception as e:
+            self.log_error(f"处理产品选择时出错: {str(e)}")
 
+    def infoPrd(self, oPrd):  # 将函数正确缩进到类内部
+        try:
+            oArry = [88, self.PDM.attDefault(oPrd), 0, self.PDM.attUsp(oPrd)]
+            return oArry
+        except Exception as e:
+            self.log_error(f"获取产品信息时出错: {str(e)}")
 
-def create_ui():
+def StartAPP():
     Prog = QApplication(sys.argv)
     progwindow = APP()
     progwindow.show()
     sys.exit(Prog.exec_())
 
 if __name__ == "__main__":
-    create_ui()
+    StartAPP()

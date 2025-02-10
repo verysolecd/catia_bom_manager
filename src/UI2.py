@@ -5,37 +5,63 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGridLayout, QDockWidget
 from PyQt5.QtGui import QPixmap
-
 # 全局变量
-prd_2rw = None
+from Vars import global_var
+# 自用全局变量
+header_style = """
+            QHeaderView::section {
+                font-size: 18px;
+                font-family: Dengxian;
+                font-weight: bold;
+                color: blue;
+                background-color: #808080;
+            }
+            """
 menu_names = ["菜单", "设置", "关于", "作者"]
-
-
+header_labels = [
+    "零件号\nPartnumber",
+    "更改\n件号",
+    "英文名称\nNomenclature",
+    "更改\n英文名",
+    "中文名称\nDefinition",
+    "更改\n中文名",
+    "实例名\nInstanceName",
+    "更改\n实例名",
+    "材料\nmaterial",
+    "定义\n材料",
+    "密度\nDensity",
+    "更改\n密度",
+    "质量\nMass",
+    "厚度\nThickness"
+]
+menu_names = ["菜单", "设置", "关于", "作者"]
+btnames = [
+    "选择\n产品", "释放\n修改产品", "读取\n产品",
+    "修改\n产品", "生成\n产品BOM", "初始化\n产品"
+]
 class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+    def _setup_ui(self, mainwindow):
         try:
-            MainWindow.setObjectName("MainWindow")
-            MainWindow.resize(1920, 1080)
-            self.centralwidget = QtWidgets.QWidget(MainWindow)
+            self.mainwindow = mainwindow
+            self.mainwindow.setObjectName("mainwindow")
+            self.mainwindow.resize(1920, 1080)
+            self.centralwidget = QtWidgets.QWidget(mainwindow)
             self.centralwidget.setObjectName("centralwidget")
-            MainWindow.setCentralWidget(self.centralwidget)
-            main_layout, tab_layout, button_layout, pic_layout = self.iniLayout()
+            self.mainwindow.setCentralWidget(self.centralwidget)
+            # 使用布局管理器
+            main_layout, tab_layout, button_layout, pic_layout = self.init_layout()
+            self.add_table(tab_layout)  # 1 创建表格部件并使用布局管理器
+            self.add_buttons(button_layout)  # 2 创建按钮并使用布局管理器
+            self.add_wxpic(pic_layout)    # 3 第三部分：图片
+            self.add_statusbar(mainwindow)  # 3 设置状态栏
+            self.add_menubar(mainwindow)  # 4 设置菜单栏
             self.centralwidget.setLayout(main_layout)
-            # 1 创建表格部件并使用布局管理器
-            self.add_table(tab_layout)
-            # 2 创建按钮并使用布局管理器
-            self.add_buttons(button_layout)
-            # 3 第三部分：图片
-            self.add_wxpic(pic_layout)
-            # 3 设置状态栏
-            self.add_statusbar(MainWindow)
-            # 4 设置菜单栏
-            self.add_menubar(MainWindow)
+            self.mainwindow.resizeEvent = self.on_resize_event
             # self.retranslateUi(MainWindow)
         except Exception as e:
             print(f"Error setting up UI: {e}")
 
-    def iniLayout(self):
+    def init_layout(self):
         main_layout = QHBoxLayout(self.centralwidget)
         tab_layout = QVBoxLayout()
         right_layout = QVBoxLayout()
@@ -46,39 +72,39 @@ class Ui_MainWindow(object):
         right_layout.addLayout(button_layout, 2)
         right_layout.addStretch(80)
         right_layout.addLayout(pic_layout, 2)
-        return main_layout, tab_layout, button_layout, pic_layout
+        return (main_layout,
+                tab_layout,
+                button_layout,
+                pic_layout
+                )
 
-    def add_menubar(self, MainWindow):
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+    def add_menubar(self, mainwindow):
+        self.menubar = QtWidgets.QMenuBar(mainwindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1387, 32))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
+        mainwindow.setMenuBar(self.menubar)
         for i, name in enumerate(menu_names):
             menu = QtWidgets.QMenu(self.menubar)
             menu.setObjectName(f"oMenu_{i}")
             menu.setTitle(name)
             setattr(self, f"oMenu_{i}", menu)
             self.menubar.addAction(menu.menuAction())
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(mainwindow)
 
     def add_buttons(self, button_layout):
-        for i, text in enumerate([
-            "选择\n产品", "释放\n修改产品", "初始化\n产品",
-            "读取\n产品", "修改\n产品", "生成\n产品BOM"
-        ]):
-            button = self.create_button(i, text)
+        for i, desc in enumerate(btnames):
+            button = self._create_button(i, desc)
+            setattr(self, f"pushButton_{i}", button)
+            button.setFixedSize(180, 180)
             font = QtGui.QFont()
             font.setPointSize(12)  # 设置字体大小为12
             button.setFont(font)
-            button.setFixedSize(180, 180)
-            setattr(self, f"pushButton_{i + 1}", button)
             button_layout.addWidget(button, i // 2, i % 2)
 
-    def create_button(self, index, text):
+    def _create_button(self, index, desc):
         button = QPushButton(self.centralwidget)
-        button.setText(text)
-        button.setObjectName(f"pushButton_{index + 1}")
-
+        button.setText(desc)
+        button.setObjectName(f"pushButton_{index}")
         return button
 
     def add_table(self, tab_layout):
@@ -88,84 +114,62 @@ class Ui_MainWindow(object):
         self.tableWidget.setRowCount(crow)  # 设置表格的行数
         self.tableWidget.setColumnCount(ccol)  # 设置表格的列数
         self.tableWidget.setObjectName("tableWidget")
-        header_labels = [
-            "零件号\nPartnumber",
-            "更改\n件号",
-            "英文名称\nNomenclature",
-            "更改\n英文名",
-            "中文名称\nDefinition",
-            "更改\n中文名",
-            "实例名\nInstanceName",
-            "更改\n实例名",
-            "材料\nmaterial",
-            "定义\n材料",
-            "密度\nMaterial",
-            "更改\n密度",
-            "质量\nMass",
-            "厚度\nThickness"
-        ]
         self.tableWidget.setHorizontalHeaderLabels(header_labels)
-
-        header = self.tableWidget.horizontalHeader()
-        self.TabReadOnly(self.tableWidget)  # 设置只读
-        # 设置表头字体为蓝色加粗体
-        # 设置表格头部背景颜色为灰色
-        header_style = """
-            QHeaderView::section {
-                font-size: 18px;
-                font-family: Dengxian;
-                font-weight: bold;
-                color: blue;
-                background-color: #808080;
-            }
-            """
         self.tableWidget.horizontalHeader().setStyleSheet(header_style)
-
-        # 根据表头内容调整列宽
-        for col in range(self.tableWidget.columnCount()):
-            header.setSectionResizeMode(
-                col, QtWidgets.QHeaderView.ResizeToContents)
-            width = header.sectionSize(col)
-            self.tableWidget.setColumnWidth(col, width)
-
-        # 计算所有列的总宽度
-        total_width = 0
-        for col in range(self.tableWidget.columnCount()):
-            total_width += self.tableWidget.columnWidth(col)
-
-        # 获取表格的可用宽度
-        available_width = self.tableWidget.viewport().width()
-
-        # 如果总宽度小于可用宽度，将剩余空间分配给所有列
-        if total_width < available_width:
-            header.setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        else:
-            # 如果总宽度大于等于可用宽度，允许水平滚动
-            header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
-
-        # 当表格内容发生变化时，自动调整列宽
+        self.set_table_readonly(self.tableWidget)  # 设置只读
         self.tableWidget.itemChanged.connect(
-            self.tableWidget.resizeColumnsToContents)
+            lambda: self.adjust_tab_width(self.tableWidget))
+        self.adjust_tab_width(self.tableWidget)  # 调整列宽
 
         tab_layout.addWidget(self.tableWidget)
-    def TabReadOnly(self, tableWidget):
-        self.tableWidget = tableWidget
+
+    def adjust_tab_width(self, table_widget):
+        header = table_widget.horizontalHeader()
+        col_count = table_widget.columnCount()
+        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        max_widths = [max(table_widget.horizontalHeader().sectionSize(
+            col), table_widget.columnWidth(col)) for col in range(col_count)]
+        total_max_width = sum(max_widths)
+        avail_width = table_widget.viewport().width()
+
+        if total_max_width > avail_width * 1.0:  # 允许20%溢出
+            header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
+            header.setCascadingSectionResizes(True)
+            for col, width in enumerate(max_widths):
+                table_widget.setColumnWidth(col, width)
+        else:
+            header.setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
+            if total_max_width and avail_width:
+                allocated = 0
+                for col in range(col_count - 1):
+                    table_widget.setColumnWidth(
+                        col, int(avail_width * (max_widths[col] / total_max_width)))
+                    allocated += table_widget.columnWidth(col)
+                table_widget.setColumnWidth(
+                    col_count - 1, max(avail_width - allocated, max_widths[-1]))
+            else:
+                default_w = max(avail_width // col_count, 50)
+                header.setSectionSizes([default_w] * col_count)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.Interactive)
+
+    def set_table_readonly(self, table_widget):
         readonly_cols = [0, 2, 4, 6, 8, 10, 12, 13]
         for col in readonly_cols:
-            for row in range(tableWidget.rowCount()):
-                item = tableWidget.item(row, col)
+            for row in range(table_widget.rowCount()):
+                item = table_widget.item(row, col)
                 if item is None:
                     item = QtWidgets.QTableWidgetItem()
-                    tableWidget.setItem(row, col, item)
+                    table_widget.setItem(row, col, item)
                 color = 192
                 item.setBackground(QtGui.QColor(color, color, color))
                 # 设置单元格为只读
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
 
-    def add_statusbar(self, MainWindow):
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+    def add_statusbar(self, mainwindow):
+        self.statusbar = QtWidgets.QStatusBar(mainwindow)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        mainwindow.setStatusBar(self.statusbar)
         self.statusbar.setFixedHeight(40)
         self.statusbar.setStyleSheet(
             "QStatusBar::item { font-size: 50px; font-family: Arial; }")
@@ -185,30 +189,22 @@ class Ui_MainWindow(object):
         else:
             print(f"Failed to load image: {imgpath}")
 
-
-
     def update_statusbar(self):
-        global prd_2rw
-        if prd_2rw is None:
+        if global_var.prd_2rw is None:
             self.statusbar.showMessage("未选择产品")
         else:
             msg = prd_2rw.name
             self.statusbar.showMessage(msg)
 
-    def on_dock_location_changed(self):
-        # 获取当前停靠窗口的位置
-        dock_widget = self.sender()
-        location = MainWindow.dockWidgetArea(dock_widget)
-
-        # 如果停靠窗口停靠在主窗口的边缘，将其最大化
-        if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
-            dock_widget.setFloating(False)
-            dock_widget.showMaximized()
-
-    # def retranslateUi(self, MainWindow):
-    #     _translate = QtCore.QCoreApplication.translate
-    #     MainWindow.setWindowTitle(_translate("MainWindow", "程序窗口"))
-    #     for menu_name, title in menu_names.items():
-    #         menu = getattr(self, menu_name, None)
-    #         if menu:
-    #             menu.setTitle(_translate("MainWindow", title))
+    # def on_dock_location_changed(self, mainwindow):
+    #     dock_widget = self.sender()
+    #     if self.mainwindow:
+    #         location = self.mainwindow.dockWidgetArea(dock_widget)
+    #         if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
+    #             dock_widget.setFloating(False)
+    #             dock_widget.showMaximized()
+    def on_resize_event(self, event):
+        # 窗口尺寸变化时调用 _adjust_tab_width 方法
+        self.adjust_tab_width(self.tableWidget)
+        # 调用原始的 resizeEvent 方法
+        return QtWidgets.QMainWindow.resizeEvent(self.mainwindow, event)
