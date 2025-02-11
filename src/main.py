@@ -17,6 +17,8 @@ import sys
 from src.UI2 import Ui_MainWindow
 from src.data_processor import ClassTDM
 from src.catia_processor import ClassPDM
+from src.UI3 import ClassUIM
+
 # 全局变量
 from Vars import global_var
 
@@ -26,11 +28,13 @@ from PyQt5.QtWidgets import QMessageBox
 class APP(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_MainWindow(self)
         self.ui._setup_ui(self)
+        self.tableWidget = self.ui.tableWidget
         self.setup_buttons()
         self.TDM = ClassTDM(self.ui.tableWidget)
         self.PDM = ClassPDM()
+        self.UIM = ClassUIM(self.ui)
 
     def setup_buttons(self):
         self.buttons = self.get_Buttons()  # 1. 动态发现按钮
@@ -46,12 +50,12 @@ class APP(QMainWindow):
         for idx, btn in enumerate(self.buttons):
             try:
                 # 使用partial避免闭包问题
-                btn.clicked.connect(partial(self.handle_button_action, idx))
+                btn.clicked.connect(partial(self.handle_clicks, idx))
                 print(f"成功连接按钮 {idx} 的点击事件")
             except Exception as e:
                 print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
-    def handle_button_action(self, button_id):
+    def handle_clicks(self, button_id):
         if not self.PDM.catia:
             self.catia = self.PDM.connect_to_catia()  # 尝试连接到 CATIA
             if self.catia:
@@ -77,16 +81,14 @@ class APP(QMainWindow):
         print(f"错误: {message}")
 
     def handle_button_0(self):  # 选择产品
-        reply = QMessageBox.question(self, '你想修改哪个产品及其子产品', '是: 选择要修改的产品\n否: 修改根产品\n取消: 退出',
-                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
-        self.handle_product_selection(reply)
+        self.select_this_Prd()
 
     def handle_button_1(self):  # 释放产品
         pass
 
     def handle_button_2(self):  # 读取产品
-        PDM = ClassPDM()
-        oPrd = PDM.rootPrd
+       
+
         my_array = PDM.attDefault(oPrd)
         orow = 0
         start_col = 0
@@ -97,26 +99,29 @@ class APP(QMainWindow):
         pass
 
     def handle_button_4(self):  # 初始化产品
-        reply = QMessageBox.question(self, '你想初始化哪个产品及其子产品', '是: 选择要修改的产品\n否: 初始化根产品\n取消: 退出',
-                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
-        self.handle_product_selection(reply)
+        oPrd = self.catia.select_this_Prd()
+        self.PDM.catia
 
     def handle_button_5(self):    # 生成BOM
         pass
 
-    def handle_product_selection(self, reply):
+    def select_this_Prd(self):
+        reply = QMessageBox.question(self, '选择操作产品及其子产品', '是: 选择要修改的产品\n否: 修改根产品\n取消: 退出选择',
+                                     QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
         try:
             if reply == QMessageBox.Yes:
                 messagebox.showinfo(
                     "提示", "在catia中选择产品")
                 self.PDM.selprd()
             elif reply == QMessageBox.No:
-                global_var.Prd2rw = self.PDM.rootPrd
+                global_var.Prd2rw = self.PDM.catia.activedocument.rootPrd
                 print("获取到 rootPrd:", global_var.Prd2rw)
             else:
                 return
         except Exception as e:
-            self.log_error(f"处理产品选择时出错: {str(e)}")
+            self.log_error(f"产品选择出错，请检查: {str(e)}")
+
+
 
     def infoPrd(self, oPrd):  # 将函数正确缩进到类内部
         try:

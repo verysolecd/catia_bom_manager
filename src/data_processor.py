@@ -1,8 +1,11 @@
 from PyQt5.QtWidgets import QTableWidgetItem
 from src.UI2 import Ui_MainWindow
 # 全局变量
-inject_cols = [1, 2, 7, 8, 9, 12]
+
+
 extract_cols = [3, 4, 5, 6, 10, 11]
+bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
+inject_cols = [0, 2, 4, 6, 8, 10, 12, 13,]
 class ClassTDM():
     def __init__(self, tableWidget):
         self.tableWidget = tableWidget
@@ -40,8 +43,7 @@ class ClassTDM():
         :param data: 包含 6 个元素的数组
         """
 
-        if len(data) != len(columns):
-            raise ValueError("数据长度必须为 6，以匹配指定的列数")
-        for col_index, value in zip(columns, data):
-            oItem = QTableWidgetItem(str(value))
-            table_widget.setItem(row, col_index, oItem)
+        if len(data) == len(inject_cols):
+            for col_index, value in zip(inject_cols, data):
+                oItem = QTableWidgetItem(str(value))
+                table_widget.setItem(row, col_index, oItem)
