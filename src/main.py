@@ -32,8 +32,6 @@ class APP(QMainWindow):
         self.TDM = ClassTDM(self.ui.tableWidget)
         self.PDM = ClassPDM()
 
-
-
     def setup_buttons(self):
         self.buttons = self.get_Buttons()  # 1. 动态发现按钮
         self.connect_button_handlers()  # 2. 绑定智能事件处理
@@ -62,18 +60,7 @@ class APP(QMainWindow):
                 QMessageBox.critical(self, "错误", "CATIA 连接失败，请检查相关设置。")
                 return
         self.button_run(button_id)
-        # if not self.PDM.catia:
-        #     self.PDM.catia = self.PDM.connect_to_catia()  # 尝试连接到 CATIA
-        #     if self.PDM.catia:
-        #         QMessageBox.information(self, "成功", "CATIA 连接成功，继续执行操作。")
-        #         self.button_run(self, button_id)
-        #     else:
-        #         QMessageBox.critical(self, "错误", "CATIA 连接失败，请检查相关设置。")
-        #         return
-        # else:
-        #     # QMessageBox.information(self, "提示", "已连接到 CATIA，继续执行操作。")
-        #     self.button_run(button_id)
-        #     print("继续执行操作...")
+
 
     def button_run(self, button_id):
         handler = getattr(self, f"handle_button_{button_id}", None)

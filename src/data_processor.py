@@ -43,5 +43,5 @@ class ClassTDM():
         if len(data) != len(columns):
             raise ValueError("数据长度必须为 6，以匹配指定的列数")
         for col_index, value in zip(columns, data):
-            item = QTableWidgetItem(str(value))
-            table_widget.setItem(row, col_index, item)
+            oItem = QTableWidgetItem(str(value))
+            table_widget.setItem(row, col_index, oItem)

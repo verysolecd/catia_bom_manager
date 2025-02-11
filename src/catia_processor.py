@@ -16,7 +16,7 @@ class ClassPDM():
 
     def connect_to_catia(self):
         try:
-           self.catia = win32com.client.GetActiveObject("CATIA.Application")
+            self.catia = win32com.client.GetActiveObject("CATIA.Application")
         except Exception as e:
             self.catia = None
         return self.catia
