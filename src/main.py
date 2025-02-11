@@ -54,11 +54,10 @@ class ClassAppWindow(QMainWindow):
     def handle_clicks(self, button_id):
         if not self.PDM.catia:
             self.catia = self.PDM.connect_to_catia()  # 尝试连接到 CATIA
-            if self.catia:
-                QMessageBox.information(self, "成功", "CATIA 连接成功，继续执行操作。")
-            else:
-                QMessageBox.critical(self, "错误", "CATIA 连接失败，请检查相关设置。")
-                return
+        if self.catia:
+            QMessageBox.information(self, "成功", "CATIA 连接成功，继续执行操作。")
+        else:
+            return
         self.button_run(button_id)
 
 
