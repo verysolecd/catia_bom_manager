@@ -11,7 +11,6 @@ from PyQt5.QtWidgets import QMessageBox
 import win32com.client
 import sys
 
-
 #  自建类
 from src.UI2 import UI0
 from src.data_processor import ClassTDM
@@ -29,7 +28,7 @@ class ClassAppWindow(QMainWindow):
         self.tableWidget = self.ui.tableWidget
         self.statusbar = self.ui.statusbar
         self.setup_buttons()
-        self.UIM = ClassUIM(self)
+        self.UIM = ClassUIM()
         self.TDM = ClassTDM(self.ui.tableWidget)
         self.PDM = ClassPDM()
 

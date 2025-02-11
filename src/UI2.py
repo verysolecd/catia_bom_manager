@@ -47,11 +47,12 @@ class UI0(object):
         super().__init__()
 
         self.mainwindow = mainwindow
-        self.UIM = ClassUIM(self.mainwindow)
+        self.UIM = ClassUIM()
         self.statusbar = None
         self.menubar = None
         self.tableWidget = None
         self._setup_ui()
+        global_var.Prd2Rw_changed.connect(self.update_statusbar)
 
 
     def _setup_ui(self):
@@ -114,6 +115,13 @@ class UI0(object):
             "QStatusBar { font-size: 14px; font-family: Arial; }")
         self.statusbar.showMessage("ready for use")
         self.mainwindow.statusbar = self.statusbar
+
+    def update_statusbar(self, new_Prd2Rw):
+        if global_var.Prd2Rw is None:
+            self.statusbar.showMessage("当前未选择产品")
+        else:
+            msg = f"当前操作的产品是:{new_Prd2Rw.name}"
+            self.statusbar.showMessage(msg)
     def add_buttons(self, button_layout):
         for i, desc in enumerate(btnames):
             button = self._create_button(i, desc)
@@ -132,8 +140,6 @@ class UI0(object):
 
     def add_table(self, tab_layout):
         self.tableWidget = QtWidgets.QTableWidget()
-        # 删除错误的 settext 调用
-        # self.tableWidget.settext(oTable)
         crow = 30
         ccol = 14
         self.tableWidget.setRowCount(crow)
@@ -144,43 +150,9 @@ class UI0(object):
         self.UIM.adjust_tab_width(self.tableWidget)  # 调整列宽
         self.tableWidget.itemChanged.connect(
             lambda: self.UIM.adjust_tab_width(self.tableWidget))
-        self.tableWidget.itemChanged.connect(
-            lambda: self.UIM.set_table_readonly(self.tableWidget))
+        self.UIM.set_table_readonly(self.tableWidget)
         tab_layout.addWidget(self.tableWidget)
         # setattr(self, "tableWidget", self.tableWidget)
-        
-
-    def adjust_tab_width(self, table_widget):
-        header = table_widget.horizontalHeader()
-        col_count = table_widget.columnCount()
-        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        max_widths = [max(table_widget.horizontalHeader().sectionSize(
-            col), table_widget.columnWidth(col)) for col in range(col_count)]
-        total_max_width = sum(max_widths)
-        avail_width = table_widget.viewport().width()
-
-        if total_max_width > avail_width * 1.0:  # 允许20%溢出
-            header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
-            header.setCascadingSectionResizes(True)
-            for col, width in enumerate(max_widths):
-                table_widget.setColumnWidth(col, width)
-        else:
-            header.setSectionResizeMode(QtWidgets.QHeaderView.Fixed)
-            if total_max_width and avail_width:
-                allocated = 0
-                for col in range(col_count - 1):
-                    table_widget.setColumnWidth(
-                        col, int(avail_width * (max_widths[col] / total_max_width)))
-                    allocated += table_widget.columnWidth(col)
-                table_widget.setColumnWidth(
-                    col_count - 1, max(avail_width - allocated, max_widths[-1]))
-            else:
-                default_w = max(avail_width // col_count, 50)
-                header.setSectionSizes([default_w] * col_count)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.Interactive)
-
-
 
     def add_wxpic(self, pic_layout):
         imgpath = 'resources/icons/wxpic.png'
@@ -206,6 +178,6 @@ class UI0(object):
 
     def on_resize_event(self, event):
         # 窗口尺寸变化时调用 _adjust_tab_width 方法
-        self.adjust_tab_width(self.tableWidget)
+        self.UIM.adjust_tab_width(self.tableWidget)
         # 调用原始的 resizeEvent 方法
         return QtWidgets.QMainWindow.resizeEvent(self.mainwindow, event)

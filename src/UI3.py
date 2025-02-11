@@ -10,9 +10,10 @@ from PyQt5.QtGui import QPixmap
 from src.Vars import global_var
 
 class ClassUIM(object):
-    def __init__(self, mainwindow):
-        self.mainwindow = mainwindow
-        self.statusbar = self.mainwindow.statusbar
+    def __init__(self):
+        super().__init__()
+
+
     def adjust_tab_width(self, table_widget):
         header = table_widget.horizontalHeader()
         col_count = table_widget.columnCount()
@@ -43,10 +44,9 @@ class ClassUIM(object):
         table_widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)  # 修改为 table_widget
 
     def set_table_readonly(self, tableWidget):
-        readonly_cols = [0, 2, 4, 6, 8, 10, 12, 13]
-        for col in readonly_cols:
+        for col in global_var.read_only_cols:
             for row in range(tableWidget.rowCount()):
-                item = table_widget.item(row, col)
+                item = tableWidget.item(row, col)
                 if item is None:
                     item = QtWidgets.QTableWidgetItem()
                     tableWidget.setItem(row, col, item)
@@ -54,10 +54,3 @@ class ClassUIM(object):
                 item.setBackground(QtGui.QColor(color, color, color))
                 # 设置单元格为只读
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
-
-    def update_statusbar(self):
-        if global_var.prd_2rw is None:
-            self.statusbar.showMessage("当前未选择产品")
-        else:
-            msg = global_var.prd_2rw.name
-            self.statusbar.showMessage(msg)
