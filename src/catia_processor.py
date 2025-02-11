@@ -21,35 +21,35 @@ class ClassPDM():
             self.catia = None
         return self.catia
 
-    def selprd(self):
-        self.catia.visible = True
-        self.catia.message_box("请选择产品", 16)
-        oSel = self.active_document.selection
-        oSel.clear()
-        filter_type = ("Product",)
-        # 执行选择操作
-        status = oSel.select_element2(filter_type, "请选择要读取的产品", False)
-        if status == "cancel":
-            self.catia.message_box("操作已取消", 16)
-            oSel.clear()
-            return None
-        elif status == "Normal":
-            if oSel.count2 == 1:
-                selected_item = oSel.item(1)  # 获取选中的项目
-                if hasattr(selected_item, 'leaf_product'):
-                    leaf_product = selected_item.leaf_product
-                    if hasattr(leaf_product, 'reference_product'):
-                        reference_product = leaf_product.reference_product
-                        oSel.clear()
-                        return reference_product
-                    else:
-                        self.catia.message_box("选中的产品没有reference_product属性", 16)
-                else:
-                    self.catia.message_box("选中的对象不是有效的产品", 16)
-            else:
-                self.catia.message_box("请仅选择一个产品", 16)
-        oSel.clear()
-        return None
+    # def selprd(self):
+    #     self.catia.visible = True
+    #     self.catia.message_box("请选择产品", 16)
+    #     oSel = self.active_document.selection
+    #     oSel.clear()
+    #     filter_type = ("Product",)
+    #     # 执行选择操作
+    #     status = oSel.select_element2(filter_type, "请选择要读取的产品", False)
+    #     if status == "cancel":
+    #         self.catia.message_box("操作已取消", 16)
+    #         oSel.clear()
+    #         return None
+    #     elif status == "Normal":
+    #         if oSel.count2 == 1:
+    #             selected_item = oSel.item(1)  # 获取选中的项目
+    #             if hasattr(selected_item, 'leaf_product'):
+    #                 leaf_product = selected_item.leaf_product
+    #                 if hasattr(leaf_product, 'reference_product'):
+    #                     reference_product = leaf_product.reference_product
+    #                     oSel.clear()
+    #                     return reference_product
+    #                 else:
+    #                     self.catia.message_box("选中的产品没有reference_product属性", 16)
+    #             else:
+    #                 self.catia.message_box("选中的对象不是有效的产品", 16)
+    #         else:
+    #             self.catia.message_box("请仅选择一个产品", 16)
+    #     oSel.clear()
+    #     return None
 
 #     def whois2rv():
 #         """
@@ -104,9 +104,9 @@ class ClassPDM():
                     att_usp[i] = "N\A"
         return att_usp
 
-    def infoPrd(self, oPrd):
-        oArry = [88, self.attDefault(oPrd), 0, self.attUsp(oPrd)]
-        return oArry
+    # def infoPrd(self, oPrd):
+    #     oArry = [88, self.attDefault(oPrd), 0, self.attUsp(oPrd)]
+    #     return oArry
 
 
 #   def bomRowPrd(oPrd, LV):
@@ -160,21 +160,21 @@ class ClassPDM():
 # allPN = {}
 # global_var.global_var.attNames = ["iMaterial", "iMass", "iThickness", "iDensity", "iBodys"]
 
-    def has_att(colls, name):
-        """
-        检查集合中是否存在指定名称的元素
-        """
-        try:
-            if isinstance(colls, (list, tuple)):
-                for item in colls:
-                    if hasattr(item, 'Name') and item.Name == name:
-                        return True
-            elif hasattr(colls, 'Item'):
-                colls.Item(name)
-                return True
-        except Exception:
-            return False
-        return False
+    # def has_att(colls, name):
+    #     """
+    #     检查集合中是否存在指定名称的元素
+    #     """
+    #     try:
+    #         if isinstance(colls, (list, tuple)):
+    #             for item in colls:
+    #                 if hasattr(item, 'Name') and item.Name == name:
+    #                     return True
+    #         elif hasattr(colls, 'Item'):
+    #             colls.Item(name)
+    #             return True
+    #     except Exception:
+    #         return False
+    #     return False
 
 
 # def ini_prd(o_prd, o_dict):
@@ -316,10 +316,10 @@ class ClassPDM():
 #         if o_formula.Value != rl_source:
 #             o_formula.Modify(rl_source)
 
-    def no_prd():
-        """
-        释放待修改的产品
-        """
+    # def no_prd():
+    #     """
+    #     释放待修改的产品
+    #     """
 
-        global_var.prd2rw = None
-        messagebox.showinfo("提示", "已释放待修改的产品")
+    #     global_var.prd2rw = None
+    #     messagebox.showinfo("提示", "已释放待修改的产品")
