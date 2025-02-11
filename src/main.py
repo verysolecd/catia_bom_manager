@@ -4,7 +4,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from itertools import count
 from functools import partial
-import tkinter as tk
 from tkinter import messagebox
 
 from PyQt5.QtWidgets import QMessageBox
@@ -14,7 +13,7 @@ import sys
 
 
 #  自建类
-from src.UI2 import Ui_MainWindow
+from src.UI2 import UI0
 from src.data_processor import ClassTDM
 from src.catia_processor import ClassPDM
 from src.UI3 import ClassUIM
@@ -22,19 +21,17 @@ from src.UI3 import ClassUIM
 # 全局变量
 from Vars import global_var
 
-from PyQt5.QtWidgets import QMessageBox
 
-
-class APP(QMainWindow):
+class ClassAppWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow(self)
-        self.ui._setup_ui(self)
+        self.ui = UI0(self)
         self.tableWidget = self.ui.tableWidget
+        self.statusbar = self.ui.statusbar
         self.setup_buttons()
+        self.UIM = ClassUIM(self)
         self.TDM = ClassTDM(self.ui.tableWidget)
         self.PDM = ClassPDM()
-        self.UIM = ClassUIM(self.ui)
 
     def setup_buttons(self):
         self.buttons = self.get_Buttons()  # 1. 动态发现按钮
@@ -87,13 +84,11 @@ class APP(QMainWindow):
         pass
 
     def handle_button_2(self):  # 读取产品
-       
-
-        my_array = PDM.attDefault(oPrd)
+        oPrd = self.PDM.catia.activedocument.rootPrd
+        my_array = self.PDM.attDefault(oPrd)
         orow = 0
         start_col = 0
-        TDM = ClassTDM(self.ui.tableWidget)
-        TDM.inject_data(orow, start_col, my_array)
+        self.TDM.inject_data(orow, my_array)
 
     def handle_button_3(self):     # 修改产品
         pass
@@ -132,8 +127,8 @@ class APP(QMainWindow):
 
 def StartAPP():
     Prog = QApplication(sys.argv)
-    progwindow = APP()
-    progwindow.show()
+    oAppWindow = ClassAppWindow()
+    oAppWindow.show()
     sys.exit(Prog.exec_())
 
 if __name__ == "__main__":

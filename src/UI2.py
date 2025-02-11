@@ -40,18 +40,25 @@ btnames = [
     "选择\n产品", "释放\n修改产品", "读取\n产品",
     "修改\n产品", "生成\n产品BOM", "初始化\n产品"
 ]
-class Ui_MainWindow(object):
+
+
+class UI0(object):
     def __init__(self, mainwindow):
         super().__init__()
+
         self.mainwindow = mainwindow
         self.UIM = ClassUIM(self.mainwindow)
+        self.statusbar = None
+        self.menubar = None
+        self.tableWidget = None
         self._setup_ui()
+
 
     def _setup_ui(self):
         try:
             self.mainwindow.setObjectName("mainwindow")
             self.mainwindow.resize(1920, 1080)
-            self.centralwidget = QtWidgets.QWidget(mainwindow)
+            self.centralwidget = QtWidgets.QWidget(self.mainwindow)
             self.centralwidget.setObjectName("centralwidget")
             self.mainwindow.setCentralWidget(self.centralwidget)
             # 使用布局管理器
@@ -95,8 +102,18 @@ class Ui_MainWindow(object):
             menu.setTitle(name)
             setattr(self, f"oMenu_{i}", menu)
             self.menubar.addAction(menu.menuAction())
-        QtCore.QMetaObject.connectSlotsByName(mainwindow)
+        QtCore.QMetaObject.connectSlotsByName(self.mainwindow)
 
+    def add_statusbar(self):
+        self.statusbar = QtWidgets.QStatusBar(self.mainwindow)
+        self.statusbar.setObjectName("statusbar")
+        self.mainwindow.setStatusBar(self.statusbar)
+        self.statusbar.setFixedHeight(40)
+        # 修改样式设置
+        self.statusbar.setStyleSheet(
+            "QStatusBar { font-size: 14px; font-family: Arial; }")
+        self.statusbar.showMessage("ready for use")
+        self.mainwindow.statusbar = self.statusbar
     def add_buttons(self, button_layout):
         for i, desc in enumerate(btnames):
             button = self._create_button(i, desc)
@@ -115,17 +132,22 @@ class Ui_MainWindow(object):
 
     def add_table(self, tab_layout):
         self.tableWidget = QtWidgets.QTableWidget()
+        # 删除错误的 settext 调用
+        # self.tableWidget.settext(oTable)
         crow = 30
         ccol = 14
-        self.tableWidget.setRowCount(crow)  # 设置表格的行数
-        self.tableWidget.setColumnCount(ccol)  # 设置表格的列数
-        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setRowCount(crow)
+        self.tableWidget.setColumnCount(ccol)
+        self.tableWidget.setObjectName("TableWidget")
         self.tableWidget.setHorizontalHeaderLabels(header_labels)
         self.tableWidget.horizontalHeader().setStyleSheet(header_style)
+        self.UIM.adjust_tab_width(self.tableWidget)  # 调整列宽
         self.tableWidget.itemChanged.connect(
-            lambda: self.adjust_tab_width(self.tableWidget))
-        self.adjust_tab_width(self.tableWidget)  # 调整列宽
+            lambda: self.UIM.adjust_tab_width(self.tableWidget))
+        self.tableWidget.itemChanged.connect(
+            lambda: self.UIM.set_table_readonly(self.tableWidget))
         tab_layout.addWidget(self.tableWidget)
+        # setattr(self, "tableWidget", self.tableWidget)
         
 
     def adjust_tab_width(self, table_widget):
@@ -158,15 +180,7 @@ class Ui_MainWindow(object):
         self.tableWidget.horizontalHeader().setSectionResizeMode(
             QtWidgets.QHeaderView.Interactive)
 
-    def add_statusbar(self):
-        self.statusbar = QtWidgets.QStatusBar(
-            self.mainwindow)  # 修改为 self.mainwindow
-        self.statusbar.setObjectName("statusbar")
-        self.mainwindow.setStatusBar(self.statusbar)  # 修改为 self.mainwindow
-        self.statusbar.setFixedHeight(40)
-        self.statusbar.setStyleSheet(
-            "QStatusBar::item { font-size: 50px; font-family: Arial; }")
-        self.statusbar.showMessage("ready for use")
+
 
     def add_wxpic(self, pic_layout):
         imgpath = 'resources/icons/wxpic.png'
@@ -189,6 +203,7 @@ class Ui_MainWindow(object):
     #         if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
     #             dock_widget.setFloating(False)
     #             dock_widget.showMaximized()
+
     def on_resize_event(self, event):
         # 窗口尺寸变化时调用 _adjust_tab_width 方法
         self.adjust_tab_width(self.tableWidget)

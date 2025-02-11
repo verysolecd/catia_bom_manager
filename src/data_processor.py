@@ -1,8 +1,6 @@
 from PyQt5.QtWidgets import QTableWidgetItem
-from src.UI2 import Ui_MainWindow
+
 # 全局变量
-
-
 extract_cols = [3, 4, 5, 6, 10, 11]
 bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
 inject_cols = [0, 2, 4, 6, 8, 10, 12, 13,]
@@ -29,21 +27,8 @@ class ClassTDM():
         #     data.append(row_data)
 
         # return data
-    def inject_data(self, row, start_col, data):
-        for ind, aItem in enumerate(array):
-            item = QTableWidgetItem(str(aItem))
-            self.tableWidget.setItem(row, start_col + ind * 2, item)
-            toUIm = Ui_MainWindow()
-            toUIm.set_table_readonly(self.tableWidget)
-            print(f"已经写入第{row}行数据")
-        """
-        将数组数据写入到 QTableWidget 中指定的行和列
-        :param table_widget: QTableWidget 实例
-        :param oRow: 要写入数据的行索引
-        :param data: 包含 6 个元素的数组
-        """
-
-        if len(data) == len(inject_cols):
-            for col_index, value in zip(inject_cols, data):
-                oItem = QTableWidgetItem(str(value))
-                table_widget.setItem(row, col_index, oItem)
+    def inject_data(self, row, data):
+        # if len(data) == len(inject_cols):
+        for col_index, value in zip(inject_cols, data):
+            oItem = QTableWidgetItem(str(value))
+            self.tableWidget.setItem(row, col_index, oItem)
