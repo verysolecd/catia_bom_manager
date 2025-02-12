@@ -31,6 +31,7 @@ class ClassAppWindow(QMainWindow):
         self.UIM = ClassUIM()
         self.TDM = ClassTDM(self.ui.tableWidget)
         self.PDM = ClassPDM()
+        self.catia = None
 
     def setup_buttons(self):
         self.buttons = self.get_Buttons()  # 1. 动态发现按钮

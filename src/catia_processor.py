@@ -17,9 +17,10 @@ class ClassPDM():
     def connect_to_catia(self):
         try:
             self.catia = win32com.client.GetActiveObject("CATIA.Application")
+            return self.catia
         except Exception as e:
-            self.catia = None
-        return self.catia
+            print(f"连接到 CATIA 时出错: {e}")
+            return None
 
     # def selprd(self):
     #     self.catia.visible = True
