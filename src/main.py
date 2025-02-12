@@ -14,7 +14,9 @@ import sys
 #  自建类
 from src.UI2 import UI0
 from src.data_processor import ClassTDM
+
 from src.catia_processor import ClassPDM
+from src.catia_processor import CATIAConnectionError
 from src.UI3 import ClassUIM
 
 # 全局变量
@@ -53,12 +55,24 @@ class ClassAppWindow(QMainWindow):
                 print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
     def handle_clicks(self, button_id):
-        if not self.PDM.catia:
-            self.catia = self.PDM.connect_to_catia()  # 尝试连接到 CATIA
-        if self.catia:
-            QMessageBox.information(self, "成功", "CATIA 连接成功，继续执行操作。")
-        else:
-            return
+        if self.catia is None:
+            try:
+                self.catia = self.PDM.connect_to_catia()
+                if not self.catia is None:
+                    QMessageBox.information(self, "成功", "CATIA 连接成功，请继续执行操作。")
+            except CATIAConnectionError as e:
+                # 处理连接失败：记录日志、提示用户或尝试启动CATIA
+                msg = f"错误: {e}，请打开catia和你的文档，再点击按钮继续操作。"
+                # print(f"错误: {e}")
+                self.catia = None
+                QMessageBox.critical(self, "错误", msg)  # 处理其他未预期的异常
+                return  # 停止运行
+            except Exception as e:
+                self.catia = None
+                msg = f"未知错误: {e}，请检查后重新运行"
+                # print(msg)
+                QMessageBox.critical(self, "错误", msg)  # 处理其他未预期的异常
+                return
         self.button_run(button_id)
 
 

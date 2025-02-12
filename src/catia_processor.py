@@ -4,9 +4,16 @@ from pycatia import catia
 import pycatia
 from tkinter import messagebox
 import win32com.client
+import pywintypes
 # 全局参数
 from Vars import global_var
 from PyQt5.QtWidgets import QMessageBox
+
+
+class CATIAConnectionError(Exception):
+    """连接CATIA失败的专用异常"""
+    pass
+
 
 class ClassPDM():
     def __init__(self):
@@ -16,11 +23,15 @@ class ClassPDM():
 
     def connect_to_catia(self):
         try:
-            self.catia = win32com.client.GetActiveObject("CATIA.Application")
+            # 连接CATIA的具体实现
+            self.catia = win32com.client.GetActiveObject("catia.Application")
             return self.catia
-        except Exception as e:
-            print(f"连接到 CATIA 时出错: {e}")
-            return None
+        except pywintypes.com_error as e:
+            # 捕获COM接口错误后抛出自定义异常
+            raise CATIAConnectionError(f"CATIA连接失败: {e}")
+            self.catia = None
+        return self.catia
+
 
     # def selprd(self):
     #     self.catia.visible = True
@@ -103,7 +114,7 @@ class ClassPDM():
                         global_var.attNames[1]).direct_parameters
                     att_usp[i] = self._askValue(
                         colls, global_var.attNames[i])
-                except:
+                except Exception as e:
                     att_usp[i] = "N\A"
         return att_usp
 
