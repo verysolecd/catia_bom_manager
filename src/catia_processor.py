@@ -133,6 +133,15 @@ class ClassPDM():
         except Exception as e:
             return "N/A"
 
+    def attModify(self, oPrd, data):
+        refprd = oPrd.referenceproduct
+        old_data = self.attDefault(oPrd)
+        for index, value in enumerate(data):
+            if value is not None and value != old_data[index]:
+                refprd.attributes[index] = value
+                print(f"属性 {index} 已修改为 {value}")
+
+
 
     # def infoPrd(self, oPrd):
     #     oArry = [88, self.attDefault(oPrd), 0, self.attUsp(oPrd)]

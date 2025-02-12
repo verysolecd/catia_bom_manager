@@ -33,6 +33,11 @@ class ClassApp(QMainWindow):
         self.TDM = ClassTDM(self.ui.tableWidget)
         self.PDM = ClassPDM()
         self.catia = None
+        self.ui.pushButton_0.setEnabled(False)
+        # if global_var.Prd2Rw is None:
+        #     self.ui.pushButton_1.setEnabled(False)
+        self.ui.pushButton_4.setEnabled(False)
+        self.ui.pushButton_5.setEnabled(False)
 
     def setup_buttons(self):
         self.buttons = self.get_Buttons()  # 1. 动态发现按钮
@@ -58,7 +63,8 @@ class ClassApp(QMainWindow):
             try:
                 self.catia = self.PDM.connect_to_catia()
                 if self.catia is not None:
-                    QMessageBox.information(self, "成功", "CATIA 连接成功，请继续执行操作。")
+                    pass
+                    # QMessageBox.information(self, "成功", "CATIA 连接成功，请继续执行操作。")
             except CATIAConnectionError as e:
                 # 处理连接失败：记录日志、提示用户或尝试启动CATIA
                 msg = f"错误: {e}，请打开catia和你的文档，再点击按钮继续操作。"
@@ -90,32 +96,50 @@ class ClassApp(QMainWindow):
         print(f"错误: {message}")
 
     def handle_button_0(self):  # 选择产品
-        button = self.pushbutton_0
-        if button:
-            button.setEnabled(False)
+        self.ui.pushButton_0.setEnabled(False)
         # self.root_or_select()
 
     def handle_button_1(self):  # 释放产品
-        pass
+        if global_var.Prd2Rw is None:
+            msg = "请先选择产品"
+
+        else:
+            msg = f"释放产品成功: {global_var.Prd2Rw.partnumber}"
+            global_var.Prd2Rw = None
+        QMessageBox.information(self, "提示", msg)
 
     def handle_button_2(self):  # 读取产品
         global_var.Prd2Rw = self.PDM.catia.activedocument.product
 
         data = self.PDM.attDefault(global_var.Prd2Rw)
         oRow = 0
-        start_col = 0
         self.TDM.inject_data(oRow, data)
+        for product in global_var.Prd2Rw.Products:
+            oRow += 1
+            data = self.PDM.attDefault(product)
+            self.TDM.inject_data(oRow, data)
+
+        self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
 
     def handle_button_3(self):     # 修改产品
-        pass
+        oRow = 0
+        data = self.TDM.extract_data(oRow)
+        self.PDM.attModify(global_var.Prd2Rw, data)
+
+        for product in global_var.Prd2Rw.Products:
+            oRow += 1
+            data = self.TDM.extract_data(oRow)
+            self.PDM.attModify(product, data)
 
     def handle_button_4(self):  # 初始化产品
+        pass
         # oPrd = self.catia.root_or_select()
         # self.PDM.catia
 
     def handle_button_5(self):
-        # 如果你暂时没有具体的实现，可以使用 pass 作为占位符
         pass
+        # 如果你暂时没有具体的实现，可以使用 pass 作为占位符
+
 
 
 

@@ -13,7 +13,8 @@ class global_var(QObject):
         # 其他不需要监控的全局变量，可直接定义
         self.attNames = ["cm", "iBodys", "iMaterial",
                          "iDensity", "iMass", "iThickness"]
-        self.read_only_cols = [0, 2, 4, 6, 8, 10, 12, 13]
+        self.read_only_cols = [0, 2, 4, 6, 8, 10,
+                               12, 13, 9, 11]  # 9和11目前也屏蔽，自定义参数可以运行后修改
 
     @property
     def Prd2Rw(self):
