@@ -77,7 +77,7 @@ class ClassAppWindow(QMainWindow):
         print(f"错误: {message}")
 
     def handle_button_0(self):  # 选择产品
-        self.select_this_Prd()
+        self.root_or_select()
 
     def handle_button_1(self):  # 释放产品
         pass
@@ -93,13 +93,13 @@ class ClassAppWindow(QMainWindow):
         pass
 
     def handle_button_4(self):  # 初始化产品
-        oPrd = self.catia.select_this_Prd()
+        oPrd = self.catia.root_or_select()
         self.PDM.catia
 
     def handle_button_5(self):    # 生成BOM
         pass
 
-    def select_this_Prd(self):
+    def root_or_select(self):
         reply = QMessageBox.question(self, '选择操作产品及其子产品', '是: 选择要修改的产品\n否: 修改根产品\n取消: 退出选择',
                                      QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
         try:
@@ -115,8 +115,6 @@ class ClassAppWindow(QMainWindow):
         except Exception as e:
             self.log_error(f"产品选择出错，请检查: {str(e)}")
 
-
-
     def infoPrd(self, oPrd):  # 将函数正确缩进到类内部
         try:
             oArry = [88, self.PDM.attDefault(oPrd), 0, self.PDM.attUsp(oPrd)]
@@ -124,11 +122,13 @@ class ClassAppWindow(QMainWindow):
         except Exception as e:
             self.log_error(f"获取产品信息时出错: {str(e)}")
 
+
 def StartAPP():
     Prog = QApplication(sys.argv)
     oAppWindow = ClassAppWindow()
     oAppWindow.show()
     sys.exit(Prog.exec_())
+
 
 if __name__ == "__main__":
     StartAPP()
