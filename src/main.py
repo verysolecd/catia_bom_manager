@@ -58,7 +58,7 @@ class ClassAppWindow(QMainWindow):
         if self.catia is None:
             try:
                 self.catia = self.PDM.connect_to_catia()
-                if not self.catia is None:
+                if self.catia is not None:
                     QMessageBox.information(self, "成功", "CATIA 连接成功，请继续执行操作。")
             except CATIAConnectionError as e:
                 # 处理连接失败：记录日志、提示用户或尝试启动CATIA
