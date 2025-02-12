@@ -28,9 +28,17 @@ class ClassPDM():
             return self.catia
         except pywintypes.com_error as e:
             # 捕获COM接口错误后抛出自定义异常
-            raise CATIAConnectionError(f"CATIA连接失败: {e}")
+            raise CATIAConnectionError("你没开catia")
             self.catia = None
         return self.catia
+
+    # try:
+    #         self.catia = win32com.client.GetActiveObject("CATIA.Application")
+    #     except Exception as e:
+    #         self.catia = None
+    #     return self.catia
+
+
 
 
     # def selprd(self):
@@ -86,8 +94,8 @@ class ClassPDM():
 #         self.refprd = oPrd.reference_product
 
     def attDefault(self, oPrd):
-        refprd = oPrd.reference_product
-        att_default = [refprd.part_number,
+        refprd = oPrd.ReferenceProduct
+        att_default = [refprd.partnumber,
                        refprd.nomenclature, refprd.definition, oPrd.name]
         # 0   1   2   3
         # pn nom def name

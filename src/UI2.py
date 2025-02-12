@@ -42,7 +42,7 @@ btnames = [
 ]
 
 
-class UI0(object):
+class ClassUI(object):
     def __init__(self, mainwindow):
         super().__init__()
 

@@ -12,9 +12,8 @@ import win32com.client
 import sys
 
 #  自建类
-from src.UI2 import UI0
+from src.UI2 import ClassUI
 from src.data_processor import ClassTDM
-
 from src.catia_processor import ClassPDM
 from src.catia_processor import CATIAConnectionError
 from src.UI3 import ClassUIM
@@ -23,10 +22,10 @@ from src.UI3 import ClassUIM
 from Vars import global_var
 
 
-class ClassAppWindow(QMainWindow):
+class ClassApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = UI0(self)
+        self.ui = ClassUI(self)
         self.tableWidget = self.ui.tableWidget
         self.statusbar = self.ui.statusbar
         self.setup_buttons()
@@ -91,27 +90,34 @@ class ClassAppWindow(QMainWindow):
         print(f"错误: {message}")
 
     def handle_button_0(self):  # 选择产品
-        self.root_or_select()
+        button = self.pushbutton_0
+        if button:
+            button.setEnabled(False)
+        # self.root_or_select()
 
     def handle_button_1(self):  # 释放产品
         pass
 
     def handle_button_2(self):  # 读取产品
-        oPrd = self.PDM.catia.activedocument.rootPrd
-        my_array = self.PDM.attDefault(oPrd)
-        orow = 0
+        global_var.Prd2Rw = self.PDM.catia.activedocument.product
+
+        data = self.PDM.attDefault(global_var.Prd2Rw)
+        oRow = 0
         start_col = 0
-        self.TDM.inject_data(orow, my_array)
+        self.TDM.inject_data(oRow, data)
 
     def handle_button_3(self):     # 修改产品
         pass
 
     def handle_button_4(self):  # 初始化产品
-        oPrd = self.catia.root_or_select()
-        self.PDM.catia
+        # oPrd = self.catia.root_or_select()
+        # self.PDM.catia
 
-    def handle_button_5(self):    # 生成BOM
+    def handle_button_5(self):
+        # 如果你暂时没有具体的实现，可以使用 pass 作为占位符
         pass
+
+
 
     def root_or_select(self):
         reply = QMessageBox.question(self, '选择操作产品及其子产品', '是: 选择要修改的产品\n否: 修改根产品\n取消: 退出选择',
@@ -139,8 +145,8 @@ class ClassAppWindow(QMainWindow):
 
 def StartAPP():
     Prog = QApplication(sys.argv)
-    oAppWindow = ClassAppWindow()
-    oAppWindow.show()
+    APP = ClassApp()
+    APP.show()
     sys.exit(Prog.exec_())
 
 
