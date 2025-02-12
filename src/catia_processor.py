@@ -85,24 +85,34 @@ class ClassPDM():
         # attNames = ["cm", "iBodys", "iMaterial",
         #         "iDensity", "iMass", "iThickness"]
         # 0    1       2          3       4      5
-        # cm iBodys iMaterial iDensity iMass iThickness
+        # cm iBodys iMaterial iDensity iMass
+        attNames = ["iMaterial", "iDensity", "iMass", "iThickness"]
+
         refprd = oPrd.reference_product
         att_usp = [None]*6
         att_usp[0] = ""
         for i in range(2, 5):
             if i in [2, 4, 5]:
                 colls = refprd.user_ref_properties
-                att_usp[i] = thisParameterValue(colls, global_var.attNames[i])
+                att_usp[i] = self._askValue(colls, global_var.attNames[i])
             elif i == 3:
                 try:
                     oPrt = refprd.parent.part
                     colls = oPrt.parameters.root_parameter_set.parameter_sets.item(
                         global_var.attNames[1]).direct_parameters
-                    att_usp[i] = thisParameterValue(
+                    att_usp[i] = self._askValue(
                         colls, global_var.attNames[i])
                 except:
                     att_usp[i] = "N\A"
         return att_usp
+
+    def _askValue(colls, myname):
+        try:
+            askValue = colls.Item(myname)
+            return askValue
+        except Exception as e:
+            return "N/A"
+
 
     # def infoPrd(self, oPrd):
     #     oArry = [88, self.attDefault(oPrd), 0, self.attUsp(oPrd)]
