@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QTableWidgetItem
-from UI3 import ClassUIM
 
 # 全局变量
 extract_cols = [1, 3, 5, 7]  # ，9，11]

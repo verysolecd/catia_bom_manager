@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 # this module is to manage catia data to get or define the product attributes
-from pycatia import catia
-import pycatia
-from tkinter import messagebox
 import win32com.client
 import pywintypes
 # 全局参数
 from Vars import global_var
-from PyQt5.QtWidgets import QMessageBox
-
-
 class CATIAConnectionError(Exception):
     """连接CATIA失败的专用异常"""
     pass

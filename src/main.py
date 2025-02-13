@@ -1,14 +1,14 @@
 #  Python库类
 # from pycatia import catia
-from PyQt5 import QtWidgets
+
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from itertools import count
+# from itertools import count
 from functools import partial
 from tkinter import messagebox
 
 from PyQt5.QtWidgets import QMessageBox
 # COM类
-import win32com.client
+
 import sys
 
 #  自建类
