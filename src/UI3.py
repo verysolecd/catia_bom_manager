@@ -3,9 +3,6 @@
 # Created by: PyQt5 UI code generator 5.15.11
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGridLayout
-from PyQt5.QtWidgets import QDockWidget, QTableWidget, QTableWidgetItem
-from PyQt5.QtGui import QPixmap
 # 全局变量
 from src.Vars import global_var
 
