@@ -6,6 +6,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGridLayout, QDockWidget
 from PyQt5.QtGui import QPixmap
 from src.UI3 import ClassUIM
+import sys
+import os
 # 全局变量
 from src.Vars import global_var
 # 自用全局变量
@@ -156,7 +158,29 @@ class ClassUI(object):
         # setattr(self, "tableWidget", self.tableWidget)
 
     def add_wxpic(self, pic_layout):
-        imgpath = 'resources/icons/wxpic.png'
+        # imgpath = 'resources/icons/wxpic.png'
+        # pixmap = QPixmap(imgpath)
+        # if not pixmap.isNull():
+        #     scaled_pixmap = pixmap.scaled(
+        #         pixmap.width() // 5, pixmap.height() // 5, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+        #     wxpic = QLabel()
+        #     wxpic.setPixmap(scaled_pixmap)
+        #     wxpic.setAlignment(QtCore.Qt.AlignCenter)
+        #     pic_layout.addWidget(wxpic)
+        # else:
+        #     print(f"Failed to load image: {imgpath}")
+
+        # 判断是否是打包后的环境
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            # 由于 main 文件在 src 目录下，需要向上一级找到项目根目录
+            base_path = os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__)))
+
+        # 构建图片的完整路径
+        imgpath = os.path.join(base_path, 'resources', 'icons', 'wxpic.png')
+
         pixmap = QPixmap(imgpath)
         if not pixmap.isNull():
             scaled_pixmap = pixmap.scaled(
@@ -165,8 +189,7 @@ class ClassUI(object):
             wxpic.setPixmap(scaled_pixmap)
             wxpic.setAlignment(QtCore.Qt.AlignCenter)
             pic_layout.addWidget(wxpic)
-        else:
-            print(f"Failed to load image: {imgpath}")
+
 
 
     # def on_dock_location_changed(self, mainwindow):
