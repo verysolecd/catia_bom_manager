@@ -23,7 +23,7 @@ class ClassUIM(object):
         total_max_width = sum(max_widths)
         avail_width = table_widget.viewport().width()
 
-        if total_max_width > avail_width * 1.0:  # 允许20%溢出
+        if total_max_width > avail_width * 1.0:
             header.setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
             header.setCascadingSectionResizes(True)
             for col, width in enumerate(max_widths):
@@ -41,7 +41,8 @@ class ClassUIM(object):
             else:
                 default_w = max(avail_width // col_count, 50)
                 header.setSectionSizes([default_w] * col_count)
-        table_widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)  # 修改为 table_widget
+        table_widget.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.Interactive)
 
     def set_table_readonly(self, tableWidget):
         for col in global_var.read_only_cols:

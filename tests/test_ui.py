@@ -1,94 +1,98 @@
 import sys
-import csv
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QTableWidget, QTableWidgetItem, QPushButton, QFileDialog
+import openpyxl
+from PyQt5.QtWidgets import QApplication, QTableView, QWidget, QVBoxLayout
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtCore import Qt, QSortFilterProxyModel
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QShortcut
 
-class TableApp(QWidget):
+
+# 创建 Excel 文件并写入数据
+def create_excel():
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    for row in range(1, 11):
+        for col in range(1, 11):
+            sheet.cell(row=row, column=col, value=f"Cell {row - 1}-{col - 1}")
+    workbook.save("example.xlsx")
+
+
+class CustomTableView(QTableView):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.copy_shortcut = QShortcut(QKeySequence.Copy, self)
+        self.copy_shortcut.activated.connect(self.copy_cells)
+        self.paste_shortcut = QShortcut(QKeySequence.Paste, self)
+        self.paste_shortcut.activated.connect(self.paste_cells)
+
+    def copy_cells(self):
+        selected_indexes = self.selectedIndexes()
+        if selected_indexes:
+            copy_text = ""
+            rows = sorted(set(index.row() for index in selected_indexes))
+            cols = sorted(set(index.column() for index in selected_indexes))
+            for row in rows:
+                for col in cols:
+                    index = self.model().index(row, col)
+                    if index in selected_indexes:
+                        copy_text += str(index.data())
+                    if col < cols[-1]:
+                        copy_text += "\t"
+                copy_text += "\n"
+            clipboard = QApplication.clipboard()
+            clipboard.setText(copy_text)
+
+    def paste_cells(self):
+        clipboard = QApplication.clipboard()
+        paste_text = clipboard.text()
+        rows = paste_text.split('\n')
+        selected_indexes = self.selectedIndexes()
+        if selected_indexes:
+            top_left = selected_indexes[0]
+            for i, row in enumerate(rows):
+                cols = row.split('\t')
+                for j, col in enumerate(cols):
+                    index = self.model().index(top_left.row() + i, top_left.column() + j)
+                    if index.isValid():
+                        self.model().setData(index, col)
+
+
+class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        # 创建布局
         layout = QVBoxLayout()
 
-        # 创建表格
-        self.table = QTableWidget()
-        self.table.setColumnCount(11)  # 设置列数
-        # 定义表头
-        headers = '''
-            '<html><head/><body><p>质量<br>Mass</p></body></html>',
-            '<html><head/><body><p>厚度<br>Thickness</p></body></html>',
-            '<html><head/><body><p>零件号<br>Partnumber</p></body></html>',
-            '<html><head/><body><p>更改<br>件号</p></body></html>',
-            '<html><head/><body><p>英文名称<br>Nomenclature</p></body></html>',
-            '<html><head/><body><p>更改<br>英文名</p></body></html>',
-            '<html><head/><body><p>中文名称<br>Definition</p></body></html>',
-            '<html><head/><body><p>更改<br>中文名</p></body></html>',
-            '<html><head/><body><p>实例名<br>InstanceName</p></body></html>',
-            '<html><head/><body><p>更改<br>实例名</p></body></html>',
-            '<html><head/><body><p>材料<br>material</p></body></html>',
-            '<html><head/><body><p>定义<br>材料</p></body></html>',
-            '<html><head/><body><p>密度<br>Material</p></body></html>',
-            '<html><head/><body><p>更改<br>密度</p></body></html>',
+        # 创建 Excel 文件
+        create_excel()
 
-        '''.splitlines()
+        # 读取 Excel 文件
+        workbook = openpyxl.load_workbook("example.xlsx")
+        sheet = workbook.active
 
-        # 设置列标题
-        self.table.setHorizontalHeaderLabels(headers)
-        layout.addWidget(self.table)
+        # 定义要截取的区域（这里截取第 2 行到第 6 行，第 2 列到第 6 列）
+        start_row = 2
+        end_row = 6
+        start_col = 2
+        end_col = 6
 
-        # 创建读取按钮
-        read_button = QPushButton('读取数据')
-        read_button.clicked.connect(self.read_data)
-        layout.addWidget(read_button)
+        # 创建模型
+        self.model = QStandardItemModel(end_row - start_row + 1, end_col - start_col + 1)
+        for row in range(start_row, end_row + 1):
+            for col in range(start_col, end_col + 1):
+                item = QStandardItem(str(sheet.cell(row=row, column=col).value))
+                self.model.setItem(row - start_row, col - start_col, item)
 
-        # 创建保存按钮
-        save_button = QPushButton('修改数据')
-        save_button.clicked.connect(self.save_data)
-        layout.addWidget(save_button)
+        # 创建自定义表格视图
+        self.table_view = CustomTableView()
+        self.table_view.setModel(self.model)
 
-        # 设置布局
+        layout.addWidget(self.table_view)
         self.setLayout(layout)
-        self.setWindowTitle('Table Data Read/Write')
-        self.show()
 
-    def read_data(self):
-        # 打开文件选择对话框
-        file_path, _ = QFileDialog.getOpenFileName(self, 'Open CSV File', '', 'CSV Files (*.csv)')
-        if file_path:
-            with open(file_path, 'r', newline='') as file:
-                reader = csv.reader(file)
-                data = list(reader)
 
-            # 清空表格
-            self.table.setRowCount(0)
-
-            # 填充表格数据
-            for row_index, row_data in enumerate(data):
-                self.table.insertRow(row_index)
-                for col_index, cell_data in enumerate(row_data):
-                    item = QTableWidgetItem(cell_data)
-                    self.table.setItem(row_index, col_index, item)
-
-    def save_data(self):
-        # 打开文件保存对话框
-        file_path, _ = QFileDialog.getSaveFileName(self, 'Save CSV File', '', 'CSV Files (*.csv)')
-        if file_path:
-            with open(file_path, 'w', newline='') as file:
-                writer = csv.writer(file)
-                rows = self.table.rowCount()
-                cols = self.table.columnCount()
-                for row in range(rows):
-                    row_data = []
-                    for col in range(cols):
-                        item = self.table.item(row, col)
-                        if item is not None:
-                            row_data.append(item.text())
-                        else:
-                            row_data.append('')
-                    writer.writerow(row_data)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ex = TableApp()
+    window = MainWindow()
+    window.show()
     sys.exit(app.exec_())
+

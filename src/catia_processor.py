@@ -15,6 +15,12 @@ class CATIAConnectionError(Exception):
     pass
 
 
+class CATerror(Exception):
+    """catia错误异常"""
+    pass
+
+
+
 class ClassPDM():
     def __init__(self):
         self.catia = None
@@ -101,6 +107,8 @@ class ClassPDM():
         # pn nom def name
         return att_default
 
+
+
     def attUsp(self, oPrd):
         # attNames = ["cm", "iBodys", "iMaterial",
         #         "iDensity", "iMass", "iThickness"]
@@ -134,13 +142,17 @@ class ClassPDM():
             return "N/A"
 
     def attModify(self, oPrd, data):
-        refprd = oPrd.referenceproduct
-        old_data = self.attDefault(oPrd)
-        for index, value in enumerate(data):
-            if value is not None and value != old_data[index]:
-                refprd.attributes[index] = value
-                print(f"属性 {index} 已修改为 {value}")
-
+        refPrd = oPrd.referenceproduct
+        att_names = ["PartNumber", "Nomenclature", "Definition", "Name"]
+        for att_name, new_value in zip(att_names, data):
+            try:
+                att_value = getattr(refPrd, att_name)
+                if new_value and new_value != att_value:
+                    setattr(oPrd, att_name, new_value)
+            # except AttributeError:
+            #     raise CATerror("缺少属性")
+            except IndexError:
+                break  # 若 data 元素不足，直接结束循环
 
 
     # def infoPrd(self, oPrd):

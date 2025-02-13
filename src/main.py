@@ -59,6 +59,7 @@ class ClassApp(QMainWindow):
                 print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
     def handle_clicks(self, button_id):
+        self.catia = None
         if self.catia is None:
             try:
                 self.catia = self.PDM.connect_to_catia()
@@ -110,14 +111,15 @@ class ClassApp(QMainWindow):
 
     def handle_button_2(self):  # 读取产品
         global_var.Prd2Rw = self.PDM.catia.activedocument.product
-
-        data = self.PDM.attDefault(global_var.Prd2Rw)
+        oprd = global_var.Prd2Rw
+        data = self.PDM.attDefault(oprd)
         oRow = 0
         self.TDM.inject_data(oRow, data)
-        for product in global_var.Prd2Rw.Products:
-            oRow += 1
-            data = self.PDM.attDefault(product)
-            self.TDM.inject_data(oRow, data)
+        if oprd.Products.Count > 0:
+            for product in oprd.Products:
+                oRow += 1
+                data = self.PDM.attDefault(product)
+                self.TDM.inject_data(oRow, data)
 
         self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
 
