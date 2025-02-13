@@ -24,3 +24,13 @@ class ClassTDM():
         except Exception as e:
             print(f"提取数据时出错: {str(e)}")
             return [""] * len(extract_cols)  # 返回默认值列表
+
+    def clear_table(self):
+        # 先将行数和列数设置为 0
+        self.tableWidget.setRowCount(0)
+        self.tableWidget.setColumnCount(0)
+        # 重新设置行数和列数
+        crow = 30
+        ccol = 14
+        self.tableWidget.setRowCount(crow)
+        self.tableWidget.setColumnCount(ccol)

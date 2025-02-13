@@ -47,14 +47,14 @@ class ClassApp(QMainWindow):
         return [
             btn for i in range(10)  # 使用有限范围代替无限count
             if (btn := getattr(self.ui, f"pushButton_{i}", None)) is not None
-        ][:6]
+        ][:7]
 
     def connect_button_handlers(self):
         for idx, btn in enumerate(self.buttons):
             try:
                 # 使用partial避免闭包问题
                 btn.clicked.connect(partial(self.handle_clicks, idx))
-                print(f"成功连接按钮 {idx} 的点击事件")
+                # print(f"成功连接按钮 {idx} 的点击事件")
             except Exception as e:
                 print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
@@ -92,7 +92,6 @@ class ClassApp(QMainWindow):
         else:
             self.log_error(f"未定义按钮 {button_id} 的处理方法")
 
-
     def log_error(self, message):
         print(f"错误: {message}")
 
@@ -102,11 +101,13 @@ class ClassApp(QMainWindow):
 
     def handle_button_1(self):  # 释放产品
         if global_var.Prd2Rw is None:
-            msg = "请先选择产品"
-
+            msg = "当前未选择待修改产品"
         else:
             msg = f"释放产品成功: {global_var.Prd2Rw.partnumber}"
             global_var.Prd2Rw = None
+            self.TDM.clear_table()
+            self.UIM.adjust_tab_width(self.tableWidget)
+            self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
         QMessageBox.information(self, "提示", msg)
 
     def handle_button_2(self):  # 读取产品
@@ -120,7 +121,6 @@ class ClassApp(QMainWindow):
                 oRow += 1
                 data = self.PDM.attDefault(product)
                 self.TDM.inject_data(oRow, data)
-
         self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
 
     def handle_button_3(self):     # 修改产品
@@ -141,6 +141,12 @@ class ClassApp(QMainWindow):
     def handle_button_5(self):
         pass
         # 如果你暂时没有具体的实现，可以使用 pass 作为占位符
+
+    def handle_button_6(self):
+        self.TDM.clear_table()
+        self.UIM.adjust_tab_width(self.tableWidget)
+        self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
+
 
 
 

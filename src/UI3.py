@@ -55,3 +55,5 @@ class ClassUIM(object):
                 item.setBackground(QtGui.QColor(color, color, color))
                 # 设置单元格为只读
                 item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
+
+    
