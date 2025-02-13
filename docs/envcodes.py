@@ -7,7 +7,7 @@ Set-ExecutionPolicy Bypass -Scope Process
 # 安装包，-e表示便携安装
 pip install -e .
 
-
+pyinstaller - -onefile - -add-data "resources/icons;resources/icons" src/main.py
 
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
