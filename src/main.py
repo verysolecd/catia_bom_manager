@@ -1,5 +1,5 @@
 #  Python库类
-from pycatia import catia
+# from pycatia import catia
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from itertools import count
