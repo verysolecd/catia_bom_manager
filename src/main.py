@@ -178,6 +178,7 @@ class ClassApp(QMainWindow):
 def StartAPP():
     Prog = QApplication(sys.argv)
     APP = ClassApp()
+    APP.setWindowTitle("catia bom manager--作者：键盘造车手")
     APP.show()
     sys.exit(Prog.exec_())
 
