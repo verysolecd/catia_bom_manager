@@ -12,11 +12,11 @@ from PyQt5.QtWidgets import QMessageBox
 import sys
 
 #  自建类
-from utils.UI2 import ClassUI
-from utils.data_processor import ClassTDM
-from utils.catia_processor import ClassPDM
-from utils.catia_processor import CATIAConnectionError
-from utils.UI3 import ClassUIM
+from src.UI2 import ClassUI
+from src.data_processor import ClassTDM
+from src.catia_processor import ClassPDM
+from src.catia_processor import CATIAConnectionError
+from src.UI3 import ClassUIM
 
 # 全局变量
 from Vars import global_var
