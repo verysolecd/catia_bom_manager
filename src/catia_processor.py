@@ -113,6 +113,16 @@ class ClassPDM():
         refprd = oPrd.reference_product
         att_usp = [None]*6
         att_usp[0] = ""
+        for i, att_name in enumerate(attNames):
+             colls = refprd.user_ref_properties
+            try:
+                att_value = getattr(refprd, att_name)
+                att_usp[i+1] = att_value
+            except AttributeError:
+                att_usp[i+1] = "N/A"
+        
+        
+        
         for i in range(2, 5):
             if i in [2, 4, 5]:
                 colls = refprd.user_ref_properties
