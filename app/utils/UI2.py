@@ -5,11 +5,11 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGridLayout
 from PyQt5.QtGui import QPixmap
-from src.UI3 import ClassUIM
+from utils.UI3 import ClassUIM
 import sys
 import os
 # 全局变量
-from src.Vars import global_var
+from Vars import global_var
 # 自用全局变量
 header_style = """
             QHeaderView::section {
