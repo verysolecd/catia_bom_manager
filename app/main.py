@@ -81,7 +81,6 @@ class ClassApp(QMainWindow):
                 return
         self.button_run(button_id)
 
-
     def button_run(self, button_id):
         handler = getattr(self, f"handle_button_{button_id}", None)
         if handler and callable(handler):
@@ -146,10 +145,6 @@ class ClassApp(QMainWindow):
         self.TDM.clear_table()
         self.UIM.adjust_tab_width(self.tableWidget)
         self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
-
-
-
-
 
     def root_or_select(self):
         reply = QMessageBox.question(self, '选择操作产品及其子产品', '是: 选择要修改的产品\n否: 修改根产品\n取消: 退出选择',
