@@ -16,8 +16,8 @@ header_style = """
                 font-size: 18px;
                 font-family: Dengxian;
                 font-weight: bold;
-                color: blue;
-                background-color: #808080;
+                color: black;
+                background-color: #FFFFF0;
             }
             """
 menu_names = ["菜单", "设置", "关于", "作者"]
