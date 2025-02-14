@@ -179,7 +179,7 @@ class ClassUI(object):
                 os.path.dirname(os.path.abspath(__file__)))
 
         # 构建图片的完整路径
-        imgpath = os.path.join(base_path, 'resources', 'icons', 'wxpic.png')
+        imgpath = os.path.join(base_path, 'app', 'icons', 'wxpic.png')
 
         pixmap = QPixmap(imgpath)
         if not pixmap.isNull():
