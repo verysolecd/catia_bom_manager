@@ -114,7 +114,7 @@ class ClassPDM():
         att_usp = [None]*6
         att_usp[0] = ""
         for i, att_name in enumerate(attNames):
-             colls = refprd.user_ref_properties
+            colls = refprd.user_ref_properties
             try:
                 att_value = getattr(refprd, att_name)
                 att_usp[i+1] = att_value
