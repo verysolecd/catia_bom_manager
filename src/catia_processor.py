@@ -120,9 +120,6 @@ class ClassPDM():
                 att_usp[i+1] = att_value
             except AttributeError:
                 att_usp[i+1] = "N/A"
-        
-        
-        
         for i in range(2, 5):
             if i in [2, 4, 5]:
                 colls = refprd.user_ref_properties
@@ -135,9 +132,8 @@ class ClassPDM():
                     att_usp[i] = self._askValue(
                         colls, global_var.attNames[i])
                 except Exception as e:
-                    att_usp[i] = "N\A"
+                    att_usp[i] = "N\\A"
         return att_usp
-
     def _askValue(colls, myname):
         try:
             askValue = colls.Item(myname)
