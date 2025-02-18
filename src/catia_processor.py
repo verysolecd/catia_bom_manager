@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 # this module is to manage catia data to get or define the product attributes
+
+
 import win32com.client
 import pywintypes
+
 # 全局参数
 from Vars import gVar
+
+
 att = [None] * 6
 attNames = ["cm",
             "iBodys",
@@ -53,16 +58,23 @@ class ClassPDM():
     # 假设 allPN 是一个全局字典
 
     def init_refPrd(self, oPrd):
-        refprd = oPrd.ReferenceProduct
-        colls = refprd.UserRefProperties
-        for i in range(2, 4, 5):
-            if self._att_Obj_Value(colls, attNames[i])[0] is None:
-                if i == 2:
-                    att[i] = colls.CreateString(attNames[i], "")
-                elif 4 <= i <= 5:
-                    att[i] = colls.CreateDimension(
-                        attNames[i], iType[attNames[i]], 0)
+    refprd = oPrd.ReferenceProduct
+    colls = refprd.UserRefProperties
+    for i in range(2, 6):  # 修改循环条件以包含所有需要处理的属性
+        if self._att_Obj_Value(colls, attNames[i])[0] is None:
+            if i == 2:
+                att[i] = colls.CreateString(attNames[i], "")
+            elif 4 <= i <= 5:
+                att[i] = colls.CreateDimension(
+                    attNames[i], iType[attNames[i]], 0)
 
+    def _att_Obj_Value(self, collection, itemName):
+        try:
+            att = collection.Item(itemName)
+            att_value = att.Value
+            return [att, att_value]
+        except Exception:
+            return [None, None]
             # def init_my_ref_prd(o_prd):
             #     """
             #     初始化参考产品
