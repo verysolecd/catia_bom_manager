@@ -1,6 +1,6 @@
 #  Python库类
 # from pycatia import catia
-
+import logging
 from PyQt5.QtWidgets import QApplication, QMainWindow
 # from itertools import count
 from functools import partial
@@ -19,7 +19,7 @@ from src.catia_processor import CATIAConnectionError
 from src.UI3 import ClassUIM
 
 # 全局变量
-from Vars import global_var
+from Vars import gVar
 
 
 class ClassApp(QMainWindow):
@@ -34,7 +34,7 @@ class ClassApp(QMainWindow):
         self.PDM = ClassPDM()
         self.catia = None
         self.ui.pushButton_0.setEnabled(False)
-        # if global_var.Prd2Rw is None:
+        # if gVar.Prd2Rw is None:
         #     self.ui.pushButton_1.setEnabled(False)
         self.ui.pushButton_4.setEnabled(False)
         self.ui.pushButton_5.setEnabled(False)
@@ -99,19 +99,19 @@ class ClassApp(QMainWindow):
         # self.root_or_select()
 
     def handle_button_1(self):  # 释放产品
-        if global_var.Prd2Rw is None:
+        if gVar.Prd2Rw is None:
             msg = "当前未选择待修改产品"
         else:
-            msg = f"释放产品成功: {global_var.Prd2Rw.partnumber}"
-            global_var.Prd2Rw = None
+            msg = f"释放产品成功: {gVar.Prd2Rw.partnumber}"
+            gVar.Prd2Rw = None
             self.TDM.clear_table()
             self.UIM.adjust_tab_width(self.tableWidget)
             self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
         QMessageBox.information(self, "提示", msg)
 
     def handle_button_2(self):  # 读取产品
-        global_var.Prd2Rw = self.PDM.catia.activedocument.product
-        oprd = global_var.Prd2Rw
+        gVar.Prd2Rw = self.PDM.catia.activedocument.product
+        oprd = gVar.Prd2Rw
         data = self.PDM.attDefault(oprd)
         oRow = 0
         self.TDM.inject_data(oRow, data)
@@ -125,9 +125,9 @@ class ClassApp(QMainWindow):
     def handle_button_3(self):     # 修改产品
         oRow = 0
         data = self.TDM.extract_data(oRow)
-        self.PDM.attModify(global_var.Prd2Rw, data)
+        self.PDM.attModify(gVar.Prd2Rw, data)
 
-        for product in global_var.Prd2Rw.Products:
+        for product in gVar.Prd2Rw.Products:
             oRow += 1
             data = self.TDM.extract_data(oRow)
             self.PDM.attModify(product, data)
@@ -155,8 +155,8 @@ class ClassApp(QMainWindow):
                     "提示", "在catia中选择产品")
                 self.PDM.selprd()
             elif reply == QMessageBox.No:
-                global_var.Prd2rw = self.PDM.catia.activedocument.rootPrd
-                print("获取到 rootPrd:", global_var.Prd2rw)
+                gVar.Prd2rw = self.PDM.catia.activedocument.rootPrd
+                print("获取到 rootPrd:", gVar.Prd2rw)
             else:
                 return
         except Exception as e:

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QTableWidgetItem
-
+import logging
 # 全局变量
 extract_cols = [1, 3, 5, 7]  # ，9，11]
 bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]

@@ -4,7 +4,7 @@
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 # 全局变量
-from src.Vars import global_var
+from src.Vars import gVar
 
 class ClassUIM(object):
     def __init__(self):
@@ -42,7 +42,7 @@ class ClassUIM(object):
             QtWidgets.QHeaderView.Interactive)
 
     def set_table_readonly(self, tableWidget):
-        for col in global_var.read_only_cols:
+        for col in gVar.read_only_cols:
             for row in range(tableWidget.rowCount()):
                 item = tableWidget.item(row, col)
                 if item is None:

@@ -2,7 +2,7 @@
 from PyQt5.QtCore import pyqtSignal, QObject
 
 
-class global_var(QObject):
+class gVar(QObject):
     # 定义 Prd2Rw 改变时的信号
     Prd2Rw_changed = pyqtSignal(object)
 
@@ -29,4 +29,4 @@ class global_var(QObject):
 
 
 # 创建全局变量实例
-global_var = global_var()
+gVar = gVar()

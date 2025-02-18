@@ -9,7 +9,7 @@ from src.UI3 import ClassUIM
 import sys
 import os
 # 全局变量
-from Vars import global_var
+from Vars import gVar
 # 自用全局变量
 header_style = """
             QHeaderView::section {
@@ -55,7 +55,7 @@ class ClassUI(object):
         self.menubar = None
         self.tableWidget = None
         self._setup_ui()
-        global_var.Prd2Rw_changed.connect(self.update_statusbar)
+        gVar.Prd2Rw_changed.connect(self.update_statusbar)
 
 
     def _setup_ui(self):
@@ -74,6 +74,9 @@ class ClassUI(object):
             self.add_menubar()  # 4 设置菜单栏
             self.centralwidget.setLayout(main_layout)
             self.mainwindow.resizeEvent = self.on_resize_event
+            # 修正：使用 dockWidgetAreaChanged 信号连接处理方法
+            self.mainwindow.dockWidgetAreaChanged.connect(
+                self.on_dock_location_changed)
             # self.retranslateUi(MainWindow)
         except Exception as e:
             print(f"Error setting up UI: {e}")
@@ -120,7 +123,7 @@ class ClassUI(object):
         self.mainwindow.statusbar = self.statusbar
 
     def update_statusbar(self, new_Prd2Rw):
-        if global_var.Prd2Rw is None:
+        if gVar.Prd2Rw is None:
             self.statusbar.showMessage("当前未选择产品")
         else:
             msg = f"当前操作的产品是:{new_Prd2Rw.name}"
@@ -158,29 +161,14 @@ class ClassUI(object):
         # setattr(self, "tableWidget", self.tableWidget)
 
     def add_wxpic(self, pic_layout):
-        # imgpath = 'resources/icons/wxpic.png'
-        # pixmap = QPixmap(imgpath)
-        # if not pixmap.isNull():
-        #     scaled_pixmap = pixmap.scaled(
-        #         pixmap.width() // 5, pixmap.height() // 5, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        #     wxpic = QLabel()
-        #     wxpic.setPixmap(scaled_pixmap)
-        #     wxpic.setAlignment(QtCore.Qt.AlignCenter)
-        #     pic_layout.addWidget(wxpic)
-        # else:
-        #     print(f"Failed to load image: {imgpath}")
 
-        # 判断是否是打包后的环境
-        if getattr(sys, 'frozen', False):
+        if getattr(sys, 'frozen', False):  # 判断是否是打包后的环境
             base_path = sys._MEIPASS
         else:
-            # 由于 main 文件在 src 目录下，需要向上一级找到项目根目录
             base_path = os.path.dirname(
-                os.path.dirname(os.path.abspath(__file__)))
-
-        # 构建图片的完整路径
-        imgpath = os.path.join(base_path, 'app', 'icons', 'wxpic.png')
-
+                os.path.dirname(os.path.abspath(__file__)))  # 由于 main 文件在 src 目录下，需要向上一级找到项目根目录
+        imgpath = os.path.join(base_path, 'resources',
+                               'icons', 'wxpic.png')  # 构建图片的完整路径
         pixmap = QPixmap(imgpath)
         if not pixmap.isNull():
             scaled_pixmap = pixmap.scaled(
@@ -190,15 +178,13 @@ class ClassUI(object):
             wxpic.setAlignment(QtCore.Qt.AlignCenter)
             pic_layout.addWidget(wxpic)
 
-
-
-    # def on_dock_location_changed(self, mainwindow):
-    #     dock_widget = self.sender()
-    #     if self.mainwindow:
-    #         location = self.mainwindow.dockWidgetArea(dock_widget)
-    #         if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
-    #             dock_widget.setFloating(False)
-    #             dock_widget.showMaximized()
+    def on_dock_location_changed(self, mainwindow):
+        dock_widget = self.sender()
+        if self.mainwindow:
+            location = self.mainwindow.dockWidgetArea(dock_widget)
+            if location in [QtCore.Qt.LeftDockWidgetArea, QtCore.Qt.RightDockWidgetArea, QtCore.Qt.TopDockWidgetArea, QtCore.Qt.BottomDockWidgetArea]:
+                dock_widget.setFloating(False)
+        self.UIM.adjust_tab_width(self.tableWidget)
 
     def on_resize_event(self, event):
         # 窗口尺寸变化时调用 _adjust_tab_width 方法

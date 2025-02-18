@@ -3,17 +3,35 @@
 import win32com.client
 import pywintypes
 # 全局参数
-from Vars import global_var
+from Vars import gVar
+att = [None] * 6
+attNames = ["cm",
+            "iBodys",
+            "iMaterial",
+            "iDensity",
+            "iMass",
+            "iThickness"]
+
+
+allPN = {}
+
+iType = {}
+iType[attNames[0]] = "String"
+iType[attNames[1]] = "list"
+iType[attNames[2]] = "String"
+iType[attNames[3]] = "Density"
+iType[attNames[4]] = "Mass"
+iType[attNames[5]] = "Length"
+
+
+
+
 class CATIAConnectionError(Exception):
     """连接CATIA失败的专用异常"""
     pass
-
-
 class CATerror(Exception):
     """catia错误异常"""
     pass
-
-
 
 class ClassPDM():
     def __init__(self):
@@ -30,14 +48,88 @@ class ClassPDM():
             # 捕获COM接口错误后抛出自定义异常
             raise CATIAConnectionError("你没开catia")
             self.catia = None
-        return self.catia
+        return self.
 
-    # try:
-    #         self.catia = win32com.client.GetActiveObject("CATIA.Application")
-    #     except Exception as e:
-    #         self.catia = None
-    #     return self.catia
+    # 假设 allPN 是一个全局字典
 
+    def init_refPrd(self, oPrd):
+        refprd = oPrd.ReferenceProduct
+        colls = refprd.UserRefProperties
+        for i in range(2, 4, 5):
+            if self._att_Obj_Value(colls, attNames[i])[0] is None:
+                if i == 2:
+                    att[i] = colls.CreateString(attNames[i], "")
+                elif 4 <= i <= 5:
+                    att[i] = colls.CreateDimension(
+                        attNames[i], iType[attNames[i]], 0)
+
+            # def init_my_ref_prd(o_prd):
+            #     """
+            #     初始化参考产品
+            #     """
+            #     ref_prd = o_prd.ReferenceProduct
+            #     att_type = {}
+            #     att_type[attNames[0]] = "String"
+            #     att_type[attNames[1]] = "list"
+            #     att_type[attNames[2]] = "String"
+            #     att_type[attNames[3]] = "Density"
+            #     att_type[attNames[4]] = "Mass"
+            #     att_type[attNames[5]] = "Length"
+
+            #     colls = ref_prd.UserRefProperties
+            #     parameter_obj = [None] * 6
+
+            #     for i in range(2, 6):
+            #         if not has_att(colls, attNames[i]):
+            #             if i == 2:
+            #                 parameter_obj[i] = colls.CreateString(attNames[i], "TBD")
+            #             elif 4 <= i <= 5:
+            #                 parameter_obj[i] = colls.CreateDimension(
+            #                     attNames[i], att_type[attNames[i]], 0)
+            #         else:
+            #             parameter_obj[i] = colls.Item(attNames[i])
+
+            #     try:
+            #         o_prt = ref_prd.Parent.Part
+            #         ini_prt(o_prd, attNames)
+            #     except Exception:
+            #         colls = ref_prd.Publications
+            #         i = 4
+            #         if not has_att(colls, attNames[i]):
+            #             o_ref = ref_prd.CreateReferenceFromName(parameter_obj[i].Name)
+            #             o_pub = colls.Add(attNames[i])
+            #             colls.SetDirect(attNames[i], o_ref)
+
+            #     o_prd.Update()
+
+
+     # 对于PRD创建参数，"iMaterial" "iMass" "iThickness"
+
+    def _att_Obj_Value(self, collection, itemName):
+        try:
+            # 尝试获取指定名称的属性
+            att = collection.item(itemName)
+            att_value = att.value
+        except Exception:
+            # 若属性不存在
+            attribute = None
+            attribute_value = None
+        result = [attribute, attribute_value]
+
+        
+        
+        
+        
+        pass
+
+    def init_Prd(self, oPrd, oDict):
+        if oPrd.PartNumber not in allPN:
+            allPN[oPrd.PartNumber] = 1
+            init_refPrd(oPrd)
+        if oPrd.Products.count > 0:
+            for product in oPrd.Products:
+                init_Prd(product, oDict)
+        allPN.clear()
 
 
 
@@ -123,14 +215,14 @@ class ClassPDM():
         for i in range(2, 5):
             if i in [2, 4, 5]:
                 colls = refprd.user_ref_properties
-                att_usp[i] = self._askValue(colls, global_var.attNames[i])
+                att_usp[i] = self._askValue(colls, attNames[i])
             elif i == 3:
                 try:
                     oPrt = refprd.parent.part
                     colls = oPrt.parameters.root_parameter_set.parameter_sets.item(
-                        global_var.attNames[1]).direct_parameters
+                        attNames[1]).direct_parameters
                     att_usp[i] = self._askValue(
-                        colls, global_var.attNames[i])
+                        colls, attNames[i])
                 except Exception as e:
                     att_usp[i] = "N\\A"
         return att_usp
@@ -153,6 +245,10 @@ class ClassPDM():
             #     raise CATerror("缺少属性")
             except IndexError:
                 break  # 若 data 元素不足，直接结束循环
+
+    def init_prd(self, oPrd):
+        refPrd = oPrd.reference_product
+        att_names = ["PartNumber", "Nomenclature", "Definition", "Name"]
 
 
     # def infoPrd(self, oPrd):
@@ -209,7 +305,7 @@ class ClassPDM():
 
 # # 假设这是全局变量
 # allPN = {}
-# global_var.global_var.attNames = ["iMaterial", "iMass", "iThickness", "iDensity", "iBodys"]
+# attNames = ["iMaterial", "iMass", "iThickness", "iDensity", "iBodys"]
 
     # def has_att(colls, name):
     #     """
@@ -247,41 +343,41 @@ class ClassPDM():
 #     """
 #     ref_prd = o_prd.ReferenceProduct
 #     att_type = {}
-#     att_type[global_var.global_var.attNames[0]] = "String"
-#     att_type[global_var.global_var.attNames[1]] = "list"
-#     att_type[global_var.global_var.attNames[2]] = "String"
-#     att_type[global_var.global_var.attNames[3]] = "Density"
-#     att_type[global_var.global_var.attNames[4]] = "Mass"
-#     att_type[global_var.global_var.attNames[5]] = "Length"
+#     att_type[attNames[0]] = "String"
+#     att_type[attNames[1]] = "list"
+#     att_type[attNames[2]] = "String"
+#     att_type[attNames[3]] = "Density"
+#     att_type[attNames[4]] = "Mass"
+#     att_type[attNames[5]] = "Length"
 
 #     colls = ref_prd.UserRefProperties
 #     parameter_obj = [None] * 6
 
 #     for i in range(2, 6):
-#         if not has_att(colls, global_var.global_var.attNames[i]):
+#         if not has_att(colls, attNames[i]):
 #             if i == 2:
-#                 parameter_obj[i] = colls.CreateString(global_var.global_var.attNames[i], "TBD")
+#                 parameter_obj[i] = colls.CreateString(attNames[i], "TBD")
 #             elif 4 <= i <= 5:
 #                 parameter_obj[i] = colls.CreateDimension(
-#                     global_var.global_var.attNames[i], att_type[global_var.global_var.attNames[i]], 0)
+#                     attNames[i], att_type[attNames[i]], 0)
 #         else:
-#             parameter_obj[i] = colls.Item(global_var.global_var.attNames[i])
+#             parameter_obj[i] = colls.Item(attNames[i])
 
 #     try:
 #         o_prt = ref_prd.Parent.Part
-#         ini_prt(o_prd, global_var.global_var.attNames)
+#         ini_prt(o_prd, attNames)
 #     except Exception:
 #         colls = ref_prd.Publications
 #         i = 4
-#         if not has_att(colls, global_var.global_var.attNames[i]):
+#         if not has_att(colls, attNames[i]):
 #             o_ref = ref_prd.CreateReferenceFromName(parameter_obj[i].Name)
-#             o_pub = colls.Add(global_var.global_var.attNames[i])
-#             colls.SetDirect(global_var.global_var.attNames[i], o_ref)
+#             o_pub = colls.Add(attNames[i])
+#             colls.SetDirect(attNames[i], o_ref)
 
 #     o_prd.Update()
 
 
-# def ini_prt(o_prd, global_var.global_var.attNames):
+# def ini_prt(o_prd, attNames):
 #     """
 #     初始化零件
 #     """
@@ -298,26 +394,26 @@ class ClassPDM():
 #             "cm").DirectParameters
 
 #     att_type = {}
-#     att_type[global_var.global_var.attNames[0]] = "String"
-#     att_type[global_var.global_var.attNames[1]] = "list"
-#     att_type[global_var.global_var.attNames[2]] = "String"
-#     att_type[global_var.global_var.attNames[3]] = "Density"
-#     att_type[global_var.global_var.attNames[4]] = "Mass"
-#     att_type[global_var.global_var.attNames[5]] = "Length"
+#     att_type[attNames[0]] = "String"
+#     att_type[attNames[1]] = "list"
+#     att_type[attNames[2]] = "String"
+#     att_type[attNames[3]] = "Density"
+#     att_type[attNames[4]] = "Mass"
+#     att_type[attNames[5]] = "Length"
 
 #     parameter_obj = [None] * 6
 
 #     for i in range(1, 6):
-#         if not has_att(colls, global_var.global_var.attNames[i]):
+#         if not has_att(colls, attNames[i]):
 #             if i == 1:
-#                 parameter_obj[i] = colls.CreateList(global_var.global_var.attNames[i])
+#                 parameter_obj[i] = colls.CreateList(attNames[i])
 #             elif i == 2:
-#                 parameter_obj[i] = colls.CreateString(global_var.global_var.attNames[i], "TBD")
+#                 parameter_obj[i] = colls.CreateString(attNames[i], "TBD")
 #             elif 3 <= i <= 5:
 #                 parameter_obj[i] = colls.CreateDimension(
-#                     global_var.global_var.attNames[i], att_type[global_var.global_var.attNames[i]], 0)
+#                     attNames[i], att_type[attNames[i]], 0)
 #         else:
-#             parameter_obj[i] = colls.Item(global_var.global_var.attNames[i])
+#             parameter_obj[i] = colls.Item(attNames[i])
 
 #     lst = parameter_obj[1]
 #     if not has_att(lst.ValueList, mbd.Name):
@@ -328,10 +424,10 @@ class ClassPDM():
 
 #     pubs = ref_prd.Publications
 #     for i in range(3, 6):
-#         if not has_att(pubs, global_var.global_var.attNames[i]):
+#         if not has_att(pubs, attNames[i]):
 #             o_ref = ref_prd.CreateReferenceFromName(parameter_obj[i].Name)
-#             o_pub = pubs.Add(global_var.global_var.attNames[i])
-#             pubs.SetDirect(global_var.global_var.attNames[i], o_ref)
+#             o_pub = pubs.Add(attNames[i])
+#             pubs.SetDirect(attNames[i], o_ref)
 
 #     o_prt.Update()
 #     o_prd.Update()
@@ -347,7 +443,7 @@ class ClassPDM():
 #             o_rule.Modify(str_ekl[1])
 
 #     rl_name = "CMAS"
-#     rl_target = ref_prd.UserRefProperties.Item(global_var.global_var.attNames[4])
+#     rl_target = ref_prd.UserRefProperties.Item(attNames[4])
 #     rl_source = "cm\\iMass"
 #     if not has_att(colls, rl_name):
 #         o_formula = colls.CreateFormula(rl_name, " ", rl_target, rl_source)
@@ -358,7 +454,7 @@ class ClassPDM():
 #     print(o_formula.Value)
 
 #     rl_name = "CTK"
-#     rl_target = ref_prd.UserRefProperties.Item(global_var.global_var.attNames[5])
+#     rl_target = ref_prd.UserRefProperties.Item(attNames[5])
 #     rl_source = "cm\\iThickness"
 #     if not has_att(colls, rl_name):
 #         o_formula = colls.CreateFormula(rl_name, " ", rl_target, rl_source)
@@ -372,5 +468,5 @@ class ClassPDM():
     #     释放待修改的产品
     #     """
 
-    #     global_var.prd2rw = None
+    #     prd2rw = None
     #     messagebox.showinfo("提示", "已释放待修改的产品")
