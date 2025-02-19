@@ -6,7 +6,7 @@ import win32com.client
 import pywintypes
 import win32api
 import win32con
-import win32gui
+
 
 
 # 全局参数
@@ -82,7 +82,6 @@ class ClassPDM():
         except Exception as e:
             win32api.MessageBox(0, f"选择失败: {str(e)}", "错误", win32con.MB_OK)
             raise CATerror("选择操作异常") from e
-
 
     def init_refPrd(self, refPrd):
         colls = refPrd.UserRefProperties  # 第一部分，初始化产品的属性
