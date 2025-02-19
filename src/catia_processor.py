@@ -197,13 +197,12 @@ class ClassPDM():
         infoPrd[2] = refPrd.Defintion
         infoPrd[3] = oPrd.Name
 
-            usrAtt = ["iMaterial",
+        usrAtt = ["iMaterial",
                       "iDensity",
                       "iMass",
                       "iThickness"
-                    ]
+                  ]
 
-        ]
 
         infoPrd[4] = refPrd.userrefproperties.item("iMaterial").value
 
