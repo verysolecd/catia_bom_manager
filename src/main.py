@@ -88,6 +88,8 @@ class ClassApp(QMainWindow):
     def handle_button_0(self):  # 选择产品
         # self.UI.pushButton_0.setEnabled(False)
         self.root_or_select()
+        imsg = f"你选择的是{gVar.Prd2Rw.PartNumber}" if gVar.Prd2Rw is not None else "未选择产品"
+        QMessageBox.information(self, "提示", imsg)
 
     def handle_button_1(self):  # 释放产品
         msg = "当前未选择待修改产品" if gVar.Prd2Rw is None else f"释放产品成功: {gVar.Prd2Rw.PartNumber}"
@@ -116,7 +118,6 @@ class ClassApp(QMainWindow):
         oRow = 0
         data = self.TDM.extract_data(oRow)
         self.PDM.attModify(gVar.Prd2Rw, data)
-
         for product in gVar.Prd2Rw.Products:
             oRow += 1
             data = self.TDM.extract_data(oRow)
@@ -128,8 +129,8 @@ class ClassApp(QMainWindow):
             self.PDM.init_Product(oprd)
         except Exception as e:
             self.log_error(f"产品初始化失败: {str(e)}")
-            msg = "当前未选择待修改产品"
-            QMessageBox.information(self, "提示", msg)
+            imsg = "当前未选择待修改产品"
+            QMessageBox.information(self, "提示", imsg)
 
     def handle_button_5(self):
         pass
@@ -145,12 +146,12 @@ class ClassApp(QMainWindow):
                                      QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
         try:
             if reply == QMessageBox.Yes:
-                QMessageBox.information(self, "提示", "在catia中选择产品")
                 self.catia.visible = True
-                self.PDM.selPrd()
+                gVar.Prd2Rw = self.PDM.selPrd()
             elif reply == QMessageBox.No:
-                gVar.Prd2rw = self.PDM.catia.activedocument.rootPrd
+                gVar.Prd2Rw = self.PDM.catia.activedocument.rootPrd
             else:
+                gVar.Prd2Rw = None
                 return
         except Exception as e:
             self.log_error(f"产品选择出错，请检查: {str(e)}")

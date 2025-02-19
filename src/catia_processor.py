@@ -4,9 +4,10 @@
 
 import win32com.client
 import pywintypes
-import win32com.client
 import win32api
 import win32con
+import win32gui
+
 
 # 全局参数
 from src.Vars import gVar
@@ -51,41 +52,37 @@ class ClassPDM():
             self.catia = win32com.client.GetActiveObject("catia.Application")
             return self.catia
         except pywintypes.com_error as e:
-            # 捕获COM接口错误后抛出自定义异常
-            raise CATIAConnectionError("你没开catia")
             self.catia = None
+            raise CATIAConnectionError("你没开catia")
+
         return self.catia
 
-    def selPrd(self):
-        self.catia.visible = True
-        win32api.MessageBox(0, "请选择产品", "提示", win32con.MB_OK)
-        oSel = self.active_document.selection
-        oSel.clear()
-        filter_type = ("Product",)
-        # 执行选择操作
-        status = oSel.select_element2(filter_type, "请选择要读取的产品", False)
-        if status == "cancel":
-            self.catia.message_box("操作已取消", 16)
-            oSel.clear()
-            return None
-        elif status == "Normal":
-            if oSel.count2 == 1:
-                selected_item = oSel.item(1)  # 获取选中的项目
-                if hasattr(selected_item, 'leaf_product'):
-                    leaf_product = selected_item.leaf_product
-                    if hasattr(leaf_product, 'reference_product'):
-                        reference_product = leaf_product.reference_product
-                        oSel.clear()
-                        return reference_product
-                    else:
-                        self.catia.message_box(
-                            "选中的产品没有reference_product属性", 16)
-                else:
-                    self.catia.message_box("选中的对象不是有效的产品", 16)
-            else:
-                self.catia.message_box("请仅选择一个产品", 16)
-        oSel.clear()
-        return None
+    def selPrd(self) -> 'ProductReference':
+        if not (self.catia and self.catia.ActiveDocument):
+            raise CATIAConnectionError("CATIA未连接")
+        try:
+            self.catia.Visible = True
+            self.catia.ActiveWindow.WindowState = 0
+            self.catia.Top = True
+        except AttributeError:
+            pass
+        try:
+            selection = self.catia.ActiveDocument.Selection
+            selection.Clear()
+            if (status := selection.SelectElement2(
+                    ("Product",), "请选择产品", False)) == "cancel":
+                win32api.MessageBox(0, "用户取消", "提示", win32con.MB_OK)
+                return None
+
+            return selection.Item(1).LeafProduct.ReferenceProduct \
+                if selection.Count2 == 1 else \
+                (win32api.MessageBox(0, "请选择单个产品",
+                 "错误", win32con.MB_OK), None)[1]
+
+        except Exception as e:
+            win32api.MessageBox(0, f"选择失败: {str(e)}", "错误", win32con.MB_OK)
+            raise CATerror("选择操作异常") from e
+
 
     def init_refPrd(self, refPrd):
         colls = refPrd.UserRefProperties  # 第一部分，初始化产品的属性
@@ -133,7 +130,7 @@ class ClassPDM():
         if not self._att_Obj_Value(att[1], mbd.Name)[0]:
             att[1].ValueList.Add(mbd)
 
-        for i in range(3, 4, 5, 6):
+        for i in range[3, 4, 5]:
             pubs = refPrd.Publications
             if self._att_Obj_Value(pubs, attNames[i])[0] is None:
                 if i in [3, 4, 5]:
@@ -216,14 +213,12 @@ class ClassPDM():
 
         return infoPrd
 
-   
-
-    def _askValue(colls, myname):
+    def _askValue(self, colls, myname):
         try:
             askValue = colls.Item(myname)
             return askValue
         except Exception as e:
-            return "N/A"
+            return "N\\A"
 
     def attModify(self, oPrd, data):
         refPrd = oPrd.referenceproduct
