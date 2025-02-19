@@ -31,7 +31,7 @@ class ClassApp(QMainWindow):
         self.catia = None
         self.UI.pushButton_0.setEnabled(False)
         # if gVar.Prd2Rw is None:
-        #     self.UI.pushButton_1.setEnabled(False)
+        # self.UI.pushButton_1.setEnabled(False)
         self.UI.pushButton_4.setEnabled(False)
         self.UI.pushButton_5.setEnabled(False)
 

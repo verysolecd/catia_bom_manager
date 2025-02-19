@@ -84,7 +84,6 @@ class ClassPDM():
     #     return None
 
     def init_refPrd(self, refPrd):
-
         colls = refPrd.UserRefProperties  # 第一部分，初始化产品的属性
         for i in range(2, 6):  # 创建属性
             if self._att_Obj_Value(colls, attNames[i])[0] is None:
@@ -189,15 +188,22 @@ class ClassPDM():
         # 0   1   2   3
         # pn nom def name
         return att_default
+
     def info_Prd(self, oPrd):
-
-
         refPrd = oPrd.referenceproduct
         infoPrd = [None]*6
         infoPrd[0] = refPrd.PartNumber
         infoPrd[1] = refPrd.Nomenclature
         infoPrd[2] = refPrd.Defintion
         infoPrd[3] = oPrd.Name
+
+            usrAtt = ["iMaterial",
+                      "iDensity",
+                      "iMass",
+                      "iThickness"
+                    ]
+
+        ]
 
         infoPrd[4] = refPrd.userrefproperties.item("iMaterial").value
 
