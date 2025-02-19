@@ -191,3 +191,6 @@ class ClassUI(object):
         self.UIM.adjust_tab_width(self.tableWidget)
         # 调用原始的 resizeEvent 方法
         return QtWidgets.QMainWindow.resizeEvent(self.mainwindow, event)
+
+    def set_head(self, tablewidget):
+        tablewidget.setHorizontalHeaderLabels(header_labels)

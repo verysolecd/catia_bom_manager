@@ -21,19 +21,19 @@ from Vars import gVar
 class ClassApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = ClassUI(self)
-        self.tableWidget = self.ui.tableWidget
-        self.statusbar = self.ui.statusbar
+        self.UI = ClassUI(self)
+        self.tableWidget = self.UI.tableWidget
+        self.statusbar = self.UI.statusbar
         self.setup_buttons()
         self.UIM = ClassUIM()
-        self.TDM = ClassTDM(self.ui.tableWidget)
+        self.TDM = ClassTDM(self.UI.tableWidget)
         self.PDM = ClassPDM()
         self.catia = None
-        self.ui.pushButton_0.setEnabled(False)
+        self.UI.pushButton_0.setEnabled(False)
         # if gVar.Prd2Rw is None:
-        #     self.ui.pushButton_1.setEnabled(False)
-        self.ui.pushButton_4.setEnabled(False)
-        self.ui.pushButton_5.setEnabled(False)
+        #     self.UI.pushButton_1.setEnabled(False)
+        self.UI.pushButton_4.setEnabled(False)
+        self.UI.pushButton_5.setEnabled(False)
 
     def setup_buttons(self):
         self.buttons = self.get_Buttons()  # 1. 动态发现按钮
@@ -42,7 +42,7 @@ class ClassApp(QMainWindow):
     def get_Buttons(self):
         return [
             btn for i in range(10)  # 使用有限范围代替无限count
-            if (btn := getattr(self.ui, f"pushButton_{i}", None)) is not None
+            if (btn := getattr(self.UI, f"pushButton_{i}", None)) is not None
         ][:7]
 
     def connect_button_handlers(self):
@@ -61,19 +61,13 @@ class ClassApp(QMainWindow):
                 self.catia = self.PDM.connect_to_catia()
                 if self.catia is not None:
                     pass
-                    # QMessageBox.information(self, "成功", "CATIA 连接成功，请继续执行操作。")
             except CATIAConnectionError as e:
-                # 处理连接失败：记录日志、提示用户或尝试启动CATIA
-                msg = f"错误: {e}，请打开catia和你的文档，再点击按钮继续操作。"
-                # print(f"错误: {e}")
                 self.catia = None
-                QMessageBox.critical(self, "错误", msg)  # 处理其他未预期的异常
-                return  # 停止运行
+                self.log_error(f"CATIA连接失败: {e}")
+                return
             except Exception as e:
                 self.catia = None
-                msg = f"未知错误: {e}，请检查后重新运行"
-                # print(msg)
-                QMessageBox.critical(self, "错误", msg)  # 处理其他未预期的异常
+                self.log_error(f"未知错误: {e}，请检查后重新运行")
                 return
         self.button_run(button_id)
 
@@ -89,21 +83,21 @@ class ClassApp(QMainWindow):
 
     def log_error(self, message):
         print(f"错误: {message}")
+        QMessageBox.critical(self, "错误", message)
 
     def handle_button_0(self):  # 选择产品
-        self.ui.pushButton_0.setEnabled(False)
-        # self.root_or_select()
+        # self.UI.pushButton_0.setEnabled(False)
+        self.root_or_select()
 
     def handle_button_1(self):  # 释放产品
-        if gVar.Prd2Rw is None:
-            msg = "当前未选择待修改产品"
-        else:
-            msg = f"释放产品成功: {gVar.Prd2Rw.partnumber}"
+        msg = "当前未选择待修改产品" if gVar.Prd2Rw is None else f"释放产品成功: {gVar.Prd2Rw.PartNumber}"
+        if gVar.Prd2Rw is not None:
             gVar.Prd2Rw = None
-            self.TDM.clear_table()
-            self.UIM.adjust_tab_width(self.tableWidget)
-            self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
-        QMessageBox.information(self, "提示", msg)
+            self.handle_button_6()
+            # self.TDM.clear_table()
+            # self.UIM.adjust_tab_width(self.tableWidget)
+            # self.UIM.set_table_readonly(self.tableWidget)
+            QMessageBox.information(self, "提示", msg)
 
     def handle_button_2(self):  # 读取产品
         gVar.Prd2Rw = self.PDM.catia.activedocument.product
@@ -129,16 +123,20 @@ class ClassApp(QMainWindow):
             self.PDM.attModify(product, data)
 
     def handle_button_4(self):  # 初始化产品
-        pass
-        # oPrd = self.catia.root_or_select()
-        # self.PDM.catia
+        try:
+            oprd = gVar.Prd2Rw
+            self.PDM.init_Product(oprd)
+        except Exception as e:
+            self.log_error(f"产品初始化失败: {str(e)}")
+            msg = "当前未选择待修改产品"
+            QMessageBox.information(self, "提示", msg)
 
     def handle_button_5(self):
         pass
-        # 如果你暂时没有具体的实现，可以使用 pass 作为占位符
 
-    def handle_button_6(self):
+    def handle_button_6(self):  # 清空表格
         self.TDM.clear_table()
+        self.UI.set_head(self.tableWidget)
         self.UIM.adjust_tab_width(self.tableWidget)
         self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
 
@@ -147,23 +145,15 @@ class ClassApp(QMainWindow):
                                      QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel, QMessageBox.Cancel)
         try:
             if reply == QMessageBox.Yes:
-                messagebox.showinfo(
-                    "提示", "在catia中选择产品")
+                QMessageBox.information(self, "提示", "在catia中选择产品")
+                self.catia.visible = True
                 self.PDM.selprd()
             elif reply == QMessageBox.No:
                 gVar.Prd2rw = self.PDM.catia.activedocument.rootPrd
-                print("获取到 rootPrd:", gVar.Prd2rw)
             else:
                 return
         except Exception as e:
             self.log_error(f"产品选择出错，请检查: {str(e)}")
-
-    def infoPrd(self, oPrd):  # 将函数正确缩进到类内部
-        try:
-            oArry = [88, self.PDM.attDefault(oPrd), 0, self.PDM.attUsp(oPrd)]
-            return oArry
-        except Exception as e:
-            self.log_error(f"获取产品信息时出错: {str(e)}")
 
 
 def StartAPP():

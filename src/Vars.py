@@ -2,7 +2,7 @@
 from PyQt5.QtCore import pyqtSignal, QObject
 
 
-class gVar(QObject):
+class ClassgVar(QObject):
     # 定义 Prd2Rw 改变时的信号
     Prd2Rw_changed = pyqtSignal(object)
 
@@ -14,7 +14,7 @@ class gVar(QObject):
         self.attNames = ["cm", "iBodys", "iMaterial",
                          "iDensity", "iMass", "iThickness"]
         self.read_only_cols = [0, 2, 4, 6, 8, 10,
-                               12, 13, 9, 11]  # 9和11目前也屏蔽，自定义参数可以运行后修改
+                               12, 13,]  # 9和11目前也屏蔽，自定义参数可以运行后修改
 
     @property
     def Prd2Rw(self):
@@ -29,4 +29,4 @@ class gVar(QObject):
 
 
 # 创建全局变量实例
-gVar = gVar()
+gVar = ClassgVar()

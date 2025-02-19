@@ -3,19 +3,8 @@
 import win32com.client
 import pywintypes
 
-
 att = [None] * 6
-attNames = [
-    "cm",
-    "iBodys",
-    "iMaterial",
-    "iDensity",
-    "iMass",
-    "iThickness"
-]
-
 allPN = {}
-
 iType = {
     attNames[0]: "String",
     attNames[1]: "list",
@@ -24,7 +13,6 @@ iType = {
     attNames[4]: "Mass",
     attNames[5]: "Length"
 }
-
 
 class CATIAProcessor:
     def __init__(self):
@@ -37,24 +25,58 @@ class CATIAProcessor:
         except pywintypes.com_error as e:
             raise Exception("无法连接到CATIA，请确保CATIA已启动")
 
-    def init_refPrd(self, oPrd):
-        refprd = oPrd.ReferenceProduct
-        colls = refprd.UserRefProperties
-        for i in range(2, 6):  # 修改循环条件以包含所有需要处理的属性
-            if self._att_Obj_Value(colls, attNames[i])[0] is None:
-                if i == 2:
-                    att[i] = colls.CreateString(attNames[i], "")
-                elif 4 <= i <= 5:
-                    att[i] = colls.CreateDimension(
-                        attNames[i], iType[attNames[i]], 0)
+    def info_Prd(self, oPrd):
+        refPrd = oPrd.referenceproduct
+        infoPrd = [None]*6
+        infoPrd[0] = refPrd.PartNumber
+        infoPrd[1] = refPrd.Nomenclature
+        infoPrd[2] = refPrd.Defintion
+        infoPrd[3] = oPrd.Name
 
-    def _att_Obj_Value(self, collection, itemName):
+        infoPrd[4] = refPrd.userrefproperties.item("iMaterial").value
+
+        infoPrd[5] =
         try:
-            att = collection.Item(itemName)
-            att_value = att.Value
-            return [att, att_value]
-        except Exception:
-            return [None, None]
+            att_usp[i] = self.thisParameterValue(
+                refprd.parent.part.parameters.root_parameter_set.parameter_sets.item(
+                    "cm").direct_parameters,
+                att_usp_Names[i]
+            )
+
+
+except Exception:
+    att_usp[i] = "N\\A"
+
+        infoPrd[6] = refPrd.userrefproperties.item("iThickness").value
+        return infoPrd
+
+    def attUsp(self, oPrd):
+        attNames = ["iMaterial", "iDensity", "iMass", "iThickness"]
+
+        refPrd = oPrd.referenceproduct
+        att_usp = [None]*6
+        att_usp[0] = ""
+        for i, att_name in enumerate(attNames):
+                colls = refPrd.user_ref_properties
+                try:
+                    att_value = getattr(refPrd, att_name)
+                    att_usp[i+1] = att_value
+                except AttributeError:
+                    att_usp[i+1] = "N/A"
+            for i in range(2, 5):
+                if i in [2, 4, 5]:
+                    colls = refPrd.user_ref_properties
+                    att_usp[i] = self._askValue(colls, attNames[i])
+                elif i == 3:
+                    try:
+                        oPrt = refPrd.parent.part
+                        colls = oPrt.parameters.root_parameter_set.parameter_sets.item(
+                            attNames[1]).direct_parameters
+                        att_usp[i] = self._askValue(
+                            colls, attNames[i])
+                    except Exception as e:
+                        att_usp[i] = "N\\A"
+            return att_usp
 
 
 def test_1():
@@ -63,7 +85,6 @@ def test_1():
     if catia:
         oprd = catia.ActiveDocument.Product
         processor.init_refPrd(oprd)
-
 
 if __name__ == '__main__':
     test_1()
