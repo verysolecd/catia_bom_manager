@@ -74,9 +74,9 @@ class ClassUI(object):
             self.add_menubar()  # 4 设置菜单栏
             self.centralwidget.setLayout(main_layout)
             self.mainwindow.resizeEvent = self.on_resize_event
-            # 修正：使用 dockWidgetAreaChanged 信号连接处理方法
-            self.mainwindow.dockWidgetAreaChanged.connect(
-                self.on_dock_location_changed)
+            # # 修正：使用 dockWidgetAreaChanged 信号连接处理方法
+            # self.mainwindow.dockWidgetAreaChanged.connect(
+            #     self.on_dock_location_changed)
             # self.retranslateUi(MainWindow)
         except Exception as e:
             print(f"Error setting up UI: {e}")

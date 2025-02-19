@@ -4,6 +4,9 @@
 
 import win32com.client
 import pywintypes
+import win32com.client
+import win32api
+import win32con
 
 # 全局参数
 from src.Vars import gVar
@@ -53,35 +56,36 @@ class ClassPDM():
             self.catia = None
         return self.catia
 
-# def selprd(self):
-    #     self.catia.visible = True
-    #     self.catia.message_box("请选择产品", 16)
-    #     oSel = self.active_document.selection
-    #     oSel.clear()
-    #     filter_type = ("Product",)
-    #     # 执行选择操作
-    #     status = oSel.select_element2(filter_type, "请选择要读取的产品", False)
-    #     if status == "cancel":
-    #         self.catia.message_box("操作已取消", 16)
-    #         oSel.clear()
-    #         return None
-    #     elif status == "Normal":
-    #         if oSel.count2 == 1:
-    #             selected_item = oSel.item(1)  # 获取选中的项目
-    #             if hasattr(selected_item, 'leaf_product'):
-    #                 leaf_product = selected_item.leaf_product
-    #                 if hasattr(leaf_product, 'reference_product'):
-    #                     reference_product = leaf_product.reference_product
-    #                     oSel.clear()
-    #                     return reference_product
-    #                 else:
-    #                     self.catia.message_box("选中的产品没有reference_product属性", 16)
-    #             else:
-    #                 self.catia.message_box("选中的对象不是有效的产品", 16)
-    #         else:
-    #             self.catia.message_box("请仅选择一个产品", 16)
-    #     oSel.clear()
-    #     return None
+    def selPrd(self):
+        self.catia.visible = True
+        win32api.MessageBox(0, "请选择产品", "提示", win32con.MB_OK)
+        oSel = self.active_document.selection
+        oSel.clear()
+        filter_type = ("Product",)
+        # 执行选择操作
+        status = oSel.select_element2(filter_type, "请选择要读取的产品", False)
+        if status == "cancel":
+            self.catia.message_box("操作已取消", 16)
+            oSel.clear()
+            return None
+        elif status == "Normal":
+            if oSel.count2 == 1:
+                selected_item = oSel.item(1)  # 获取选中的项目
+                if hasattr(selected_item, 'leaf_product'):
+                    leaf_product = selected_item.leaf_product
+                    if hasattr(leaf_product, 'reference_product'):
+                        reference_product = leaf_product.reference_product
+                        oSel.clear()
+                        return reference_product
+                    else:
+                        self.catia.message_box(
+                            "选中的产品没有reference_product属性", 16)
+                else:
+                    self.catia.message_box("选中的对象不是有效的产品", 16)
+            else:
+                self.catia.message_box("请仅选择一个产品", 16)
+        oSel.clear()
+        return None
 
     def init_refPrd(self, refPrd):
         colls = refPrd.UserRefProperties  # 第一部分，初始化产品的属性

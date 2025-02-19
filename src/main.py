@@ -29,11 +29,11 @@ class ClassApp(QMainWindow):
         self.TDM = ClassTDM(self.UI.tableWidget)
         self.PDM = ClassPDM()
         self.catia = None
-        self.UI.pushButton_0.setEnabled(False)
+        # self.UI.pushButton_0.setEnabled(False)
         # if gVar.Prd2Rw is None:
         # self.UI.pushButton_1.setEnabled(False)
-        self.UI.pushButton_4.setEnabled(False)
-        self.UI.pushButton_5.setEnabled(False)
+        # self.UI.pushButton_4.setEnabled(False)
+        # self.UI.pushButton_5.setEnabled(False)
 
     def setup_buttons(self):
         self.buttons = self.get_Buttons()  # 1. 动态发现按钮
@@ -147,7 +147,7 @@ class ClassApp(QMainWindow):
             if reply == QMessageBox.Yes:
                 QMessageBox.information(self, "提示", "在catia中选择产品")
                 self.catia.visible = True
-                self.PDM.selprd()
+                self.PDM.selPrd()
             elif reply == QMessageBox.No:
                 gVar.Prd2rw = self.PDM.catia.activedocument.rootPrd
             else:
