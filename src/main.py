@@ -3,7 +3,6 @@ import logging
 from PyQt5.QtWidgets import QApplication, QMainWindow
 # from itertools import count
 from functools import partial
-from tkinter import messagebox
 from PyQt5.QtWidgets import QMessageBox
 # COM类
 import sys
