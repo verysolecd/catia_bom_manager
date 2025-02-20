@@ -11,7 +11,7 @@ import sys
 from src.UI2 import ClassUI
 from src.data_processor import ClassTDM
 from src.catia_processor import ClassPDM
-from src.catia_processor import CATIAConnectionError
+from src.catia_processor import CATerror
 from src.UI3 import ClassUIM
 
 # 全局变量
@@ -48,7 +48,6 @@ class ClassApp(QMainWindow):
     def connect_button_handlers(self):
         for idx, btn in enumerate(self.buttons):
             try:
-                # 使用partial避免闭包问题
                 btn.clicked.connect(partial(self.handle_clicks, idx))
                 # print(f"成功连接按钮 {idx} 的点击事件")
             except Exception as e:
@@ -61,7 +60,7 @@ class ClassApp(QMainWindow):
                 self.catia = self.PDM.connect_to_catia()
                 if self.catia is not None:
                     pass
-            except CATIAConnectionError as e:
+            except CATerror as e:
                 self.catia = None
                 self.log_error(f"CATIA连接失败: {e}")
                 return
@@ -88,8 +87,8 @@ class ClassApp(QMainWindow):
     def handle_button_0(self):  # 选择产品
         # self.UI.pushButton_0.setEnabled(False)
         self.root_or_select()
-        imsg = f"你选择的是{gVar.Prd2Rw.PartNumber}" if gVar.Prd2Rw is not None else "未选择产品"
-        QMessageBox.information(self, "提示", imsg)
+        # imsg = f"你选择的是{gVar.Prd2Rw.PartNumber}" if gVar.Prd2Rw is not None else "未选择产品"
+        # QMessageBox.information(self, "提示", imsg)
 
     def handle_button_1(self):  # 释放产品
         msg = "当前未选择待修改产品" if gVar.Prd2Rw is None else f"释放产品成功: {gVar.Prd2Rw.PartNumber}"
@@ -102,16 +101,13 @@ class ClassApp(QMainWindow):
             QMessageBox.information(self, "提示", msg)
 
     def handle_button_2(self):  # 读取产品
-        gVar.Prd2Rw = self.PDM.catia.activedocument.product
+        if gVar.Prd2Rw is None:
+            QMessageBox.information(self, "提示", "当前未选择待修改产品")
+            return
         oprd = gVar.Prd2Rw
-        data = self.PDM.attDefault(oprd)
-        oRow = 0
-        self.TDM.inject_data(oRow, data)
-        if oprd.Products.Count > 0:
-            for product in oprd.Products:
-                oRow += 1
-                data = self.PDM.attDefault(product)
-                self.TDM.inject_data(oRow, data)
+        self.TDM.inject_data(0, self.PDM.info_Prd(oprd))
+        for i, product in enumerate(oprd.Products, start=1):
+            self.TDM.inject_data(i, self.PDM.info_Prd(product))
         self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
 
     def handle_button_3(self):     # 修改产品
@@ -149,7 +145,7 @@ class ClassApp(QMainWindow):
                 self.catia.visible = True
                 gVar.Prd2Rw = self.PDM.selPrd()
             elif reply == QMessageBox.No:
-                gVar.Prd2Rw = self.PDM.catia.activedocument.rootPrd
+                gVar.Prd2Rw = self.PDM.catia.activedocument.product
             else:
                 gVar.Prd2Rw = None
                 return

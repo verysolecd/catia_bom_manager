@@ -32,13 +32,9 @@ iType = {
 }
 
 
-class CATIAConnectionError(Exception):
-    """连接CATIA失败的专用异常"""
-
 
 class CATerror(Exception):
     """catia错误异常"""
-
 
 class ClassPDM():
     def __init__(self):
@@ -53,13 +49,20 @@ class ClassPDM():
             return self.catia
         except pywintypes.com_error as e:
             self.catia = None
-            raise CATIAConnectionError("你没开catia")
+            return self.catia
+            raise CATerror("请打开catia和产品")
+        except Exception as e:
+            self.catia = None
+            return self.catia
+            raise CATerror(f"未知错误: {str(e)}，请检查后重新运行")
 
-        return self.catia
 
-    def selPrd(self) -> 'ProductReference':
+    def amsg(imsg):
+        win32api.MessageBox(0, imsg, "Error", win32con.MB_OK)
+
+    def selPrd(self):
         if not (self.catia and self.catia.ActiveDocument):
-            raise CATIAConnectionError("CATIA未连接")
+            raise CATerror("请打开catia和产品")
         try:
             self.catia.Visible = True
             self.catia.ActiveWindow.WindowState = 0
@@ -67,20 +70,16 @@ class ClassPDM():
         except AttributeError:
             pass
         try:
-            selection = self.catia.ActiveDocument.Selection
-            selection.Clear()
-            if (status := selection.SelectElement2(
-                    ("Product",), "请选择产品", False)) == "cancel":
-                win32api.MessageBox(0, "用户取消", "提示", win32con.MB_OK)
+            oSel = self.catia.ActiveDocument.Selection
+            oSel.Clear()
+            if (status := oSel.SelectElement2(("Product",), "请选择产品", False)) == "cancel":
+                self.amsg("用户取消")
                 return None
-
-            return selection.Item(1).LeafProduct.ReferenceProduct \
-                if selection.Count2 == 1 else \
-                (win32api.MessageBox(0, "请选择单个产品",
-                 "错误", win32con.MB_OK), None)[1]
-
+            return oSel.Item(1).LeafProduct.ReferenceProduct \
+                if oSel.Count2 == 1 else \
+                (self.amsg("请只选择一个产品"), None)[1]
         except Exception as e:
-            win32api.MessageBox(0, f"选择失败: {str(e)}", "错误", win32con.MB_OK)
+            self.amsg(f"选择失败: {str(e)}")
             raise CATerror("选择操作异常") from e
 
     def init_refPrd(self, refPrd):
@@ -167,7 +166,7 @@ class ClassPDM():
             att_value = att.Value
             return [att, att_value]
         except Exception:
-            return [None, None]
+            return [None, "N\\A"]
 
     def init_Product(self, oPrd, allPN):
         refPrd = oPrd.ReferenceProduct
@@ -189,31 +188,37 @@ class ClassPDM():
         return att_default
 
     def info_Prd(self, oPrd):
+
+        # iCols = [0, 2, 4, 6, 12, 12, 10, 13,]
+        # bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
         refPrd = oPrd.referenceproduct
-        infoPrd = [None]*8
+        infoPrd = [None]*9
         infoPrd[0] = refPrd.PartNumber
         infoPrd[1] = refPrd.Nomenclature
-        infoPrd[2] = refPrd.Defintion
+        infoPrd[2] = refPrd.Definition
         infoPrd[3] = oPrd.Name
+        infoPrd[4] = self._countPrd(oPrd)
         usrp = refPrd.UserRefProperties
-        infoPrd[4] = self._att_Value(usrp, "iMaterial")[1]
         infoPrd[5] = self._att_Value(usrp, "iMass")[1]
-        infoPrd[6] = self._att_Value(usrp, "iThickness")[1]
+        infoPrd[6] = self._att_Value(usrp, "iMaterial")[1]
+        infoPrd[7] = self._att_Value(usrp, "iThickness")[1]
         try:
             colls = refPrd.parent.part.parameters.rootparameterset.parametersets.item(
                 "cm").directparameters
-            infoPrd[5] = self._att_Value(colls, "iDensity")[1]
+            infoPrd[8] = self._att_Value(colls, "iDensity")[1]
         except Exception:
-            infoPrd[5] = "N\\A"
-        infoPrd[7] = 0
+            infoPrd[8] = "N\\A"
         return infoPrd
 
-    def _askValue(self, colls, myname):
-        try:
-            askValue = colls.Item(myname)
-            return askValue
-        except Exception as e:
-            return "N\\A"
+    def _countPrd(self, oPrd):
+        count = 0
+        parent = getattr(oPrd.parent, 'parent', None)
+        if parent and hasattr(parent, 'products'):
+            for i in range(1, parent.products.count + 1):
+                bros = parent.products.item(i)
+                if bros.PartNumber == oPrd.PartNumber:
+                    count += 1
+        return count or 1  # 默认返回1表示没有父级的情况
 
     def attModify(self, oPrd, data):
         refPrd = oPrd.referenceproduct
@@ -223,10 +228,23 @@ class ClassPDM():
                 att_value = getattr(refPrd, att_name)
                 if new_value and new_value != att_value:
                     setattr(oPrd, att_name, new_value)
-            # except AttributeError:
-            #     raise CATerror("缺少属性")
             except IndexError:
-                break  # 若 data 元素不足，直接结束循环
+        try:
+            # data[4]  # iMateiral
+            # data[5]  # iDensity
+            if data[4] and data[4] != refPrd.UserRefProperties.Item("iMaterial").Value:
+                refPrd.UserRefProperties.Item("iMaterial").Value = data[4]
+        except Exception as e:
+            pass
+        try:
+            if data[5] and data[5] != refPrd.parent.part.parameters.rootparameterset.parametersets.Item(
+                    "cm").DirectParameters.Item("iDensity").Value:
+                refPrd.UserRefProperties.Item("iDensity").Value = data[5]
+        except Exception as e:
+            pass
+
+
+
 
 
 
