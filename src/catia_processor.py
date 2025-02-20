@@ -86,7 +86,7 @@ class ClassPDM():
     def init_refPrd(self, refPrd):
         colls = refPrd.UserRefProperties  # 第一部分，初始化产品的属性
         for i in range(2, 6):  # 创建属性
-            if self._att_Obj_Value(colls, attNames[i])[0] is None:
+            if self._att_Value(colls, attNames[i])[0] is None:
                 if i == 2:
                     att[i] = colls.CreateString(attNames[i], "")
                 if 4 <= i <= 5:
@@ -97,7 +97,7 @@ class ClassPDM():
         except Exception:  # 若没有part则单独发布imass
             colls = refPrd.Publications
             i = 4
-            if self._att_Obj_Value(colls, attNames[i])[0] is None:
+            if self._att_Value(colls, attNames[i])[0] is None:
                 oRef = refPrd.CreateReferenceFromName(att[i].Name)
                 colls.Add(attNames[i])
                 colls.SetDirect(attNames[i], oRef)
@@ -117,7 +117,7 @@ class ClassPDM():
             colls = oSet.Item("cm").DirectParameters
 
         for i in range(1, 5):  # 不存在则创建
-            if self._att_Obj_Value(colls, attNames[i])[0] is None:
+            if self._att_Value(colls, attNames[i])[0] is None:
                 if i == 1:
                     att[i] = colls.Createlist(attNames[i], "")
                 if 4 <= i <= 5:
@@ -126,12 +126,12 @@ class ClassPDM():
             else:
                 att[i] = colls.Item(attNames[i])
 
-        if not self._att_Obj_Value(att[1], mbd.Name)[0]:
+        if not self._att_Value(att[1], mbd.Name)[0]:
             att[1].ValueList.Add(mbd)
 
         for i in range[3, 4, 5]:
             pubs = refPrd.Publications
-            if self._att_Obj_Value(pubs, attNames[i])[0] is None:
+            if self._att_Value(pubs, attNames[i])[0] is None:
                 if i in [3, 4, 5]:
                     oref = refPrd.CreateReferenceFromName(att[i].Name)
                     oPub = pubs.Add(attNames[i])  # 添加发布
@@ -147,7 +147,7 @@ class ClassPDM():
         eStr = ["CalM",
                 "let lst = cm\\iBodys; let V = 0; let Vol = 0; for i = 1 to lst.Size() do { V = smartVolume(lst.GetItem(i)); Vol = Vol + V; }; cm\\iMass = Vol * cm\\iDensity"]
         colls = oPrt.Relations
-        oRule = colls.Item(eStr[0]) if self._att_Obj_Value(colls, eStr[0])[
+        oRule = colls.Item(eStr[0]) if self._att_Value(colls, eStr[0])[
             0] else colls.CreateProgram(eStr[0], "cal of mass", eStr[1])
         if oRule.Value != eStr[1]:
             oRule.Modify(eStr[1])
@@ -156,13 +156,12 @@ class ClassPDM():
             ("CTK", attNames[5], "cm\\iThickness")]
         for rName, att_index, rSource in gName:
             rTarget = refPrd.UserRefProperties.Item(att_index)
-            oFml = colls.Item(rName) if self._att_Obj_Value(colls, rName)[
+            oFml = colls.Item(rName) if self._att_Value(colls, rName)[
                 0] else colls.CreateFormula(rName, " ", rTarget, rSource)
             if oFml.Value != rSource:
                 oFml.Modify(rSource)
 
-
-    def _att_Obj_Value(self, collection, itemName):
+    def _att_Value(self, collection, itemName):
         try:
             att = collection.Item(itemName)
             att_value = att.Value
@@ -191,25 +190,22 @@ class ClassPDM():
 
     def info_Prd(self, oPrd):
         refPrd = oPrd.referenceproduct
-        infoPrd = [None]*6
+        infoPrd = [None]*8
         infoPrd[0] = refPrd.PartNumber
         infoPrd[1] = refPrd.Nomenclature
         infoPrd[2] = refPrd.Defintion
         infoPrd[3] = oPrd.Name
-
-        usrAtt = ["iMaterial",
-                      "iDensity",
-                      "iMass",
-                      "iThickness"
-                  ]
-
-
-        infoPrd[4] = refPrd.userrefproperties.item("iMaterial").value
-
-        infoPrd[5] = refPrd.userrefproperties.item("iDensity").value
-
-        att_usp_Names = ["iMass", "iThickness", "iMass", "iThickness"]
-
+        usrp = refPrd.UserRefProperties
+        infoPrd[4] = self._att_Value(usrp, "iMaterial")[1]
+        infoPrd[5] = self._att_Value(usrp, "iMass")[1]
+        infoPrd[6] = self._att_Value(usrp, "iThickness")[1]
+        try:
+            colls = refPrd.parent.part.parameters.rootparameterset.parametersets.item(
+                "cm").directparameters
+            infoPrd[5] = self._att_Value(colls, "iDensity")[1]
+        except Exception:
+            infoPrd[5] = "N\\A"
+        infoPrd[7] = 0
         return infoPrd
 
     def _askValue(self, colls, myname):

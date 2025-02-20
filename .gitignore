@@ -26,7 +26,6 @@ share/python-wheels/
 *.egg
 MANIFEST
 CBM.egg-info/
-.vscode/
 
 
 # PyInstaller

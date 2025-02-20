@@ -57,7 +57,6 @@ class ClassUI(object):
         self._setup_ui()
         gVar.Prd2Rw_changed.connect(self.update_statusbar)
 
-
     def _setup_ui(self):
         try:
             self.mainwindow.setObjectName("mainwindow")
