@@ -35,6 +35,7 @@ iType = {
 
 class CATerror(Exception):
     """catia错误异常"""
+    pass
 
 class ClassPDM():
     def __init__(self):
@@ -44,17 +45,12 @@ class ClassPDM():
 
     def connect_to_catia(self):
         try:
-            # 连接CATIA的具体实现
             self.catia = win32com.client.GetActiveObject("catia.Application")
             return self.catia
         except pywintypes.com_error as e:
-            self.catia = None
-            return self.catia
             raise CATerror("请打开catia和产品")
         except Exception as e:
-            self.catia = None
-            return self.catia
-            raise CATerror(f"未知错误: {str(e)}，请检查后重新运行")
+            raise CATerror(f"错误: {str(e)}，请检查")
 
 
     def amsg(imsg):

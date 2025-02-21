@@ -28,15 +28,10 @@ class ClassApp(QMainWindow):
         self.TDM = ClassTDM(self.UI.tableWidget)
         self.PDM = ClassPDM()
         self.catia = None
-        # self.UI.pushButton_0.setEnabled(False)
-        # if gVar.Prd2Rw is None:
-        # self.UI.pushButton_1.setEnabled(False)
-        # self.UI.pushButton_4.setEnabled(False)
-        # self.UI.pushButton_5.setEnabled(False)
 
     def setup_buttons(self):
-        self.buttons = self.get_Buttons()  # 1. 动态发现按钮
-        self.connect_button_handlers()  # 2. 绑定智能事件处理
+        self.buttons = self.get_Buttons()
+        self.connect_button_handlers()
 
     def get_Buttons(self):
         return [
@@ -48,20 +43,18 @@ class ClassApp(QMainWindow):
         for idx, btn in enumerate(self.buttons):
             try:
                 btn.clicked.connect(partial(self.handle_clicks, idx))
-                # print(f"成功连接按钮 {idx} 的点击事件")
             except Exception as e:
                 print(f"连接按钮 {idx} 的点击事件时出错: {e}")
 
     def handle_clicks(self, button_id):
-        self.catia = None
         if self.catia is None:
             try:
                 self.catia = self.PDM.connect_to_catia()
-                if self.catia is not None:
+                if self.catia is not None:                    
                     pass
             except CATerror as e:
                 self.catia = None
-                self.log_error(f"CATIA连接失败: {e}")
+                QMessageBox.information(self, "错误", "CATIA连接失败，请打开CATIA文档")
                 return
             except Exception as e:
                 self.catia = None
@@ -81,13 +74,12 @@ class ClassApp(QMainWindow):
 
     def log_error(self, message):
         print(f"错误: {message}")
-        QMessageBox.critical(self, "错误", message)
+        QMessageBox.information(self, "错误", message)
 
     def handle_button_0(self):  # 选择产品
-        # self.UI.pushButton_0.setEnabled(False)
         self.root_or_select()
-        # imsg = f"你选择的是{gVar.Prd2Rw.PartNumber}" if gVar.Prd2Rw is not None else "未选择产品"
-        # QMessageBox.information(self, "提示", imsg)
+        imsg = f"你选择的是{gVar.Prd2Rw.PartNumber}" if gVar.Prd2Rw is not None else "未选择产品"
+        QMessageBox.information(self, "提示", imsg)
 
     def handle_button_1(self):  # 释放产品
         msg = "当前未选择待修改产品" if gVar.Prd2Rw is None else f"释放产品成功: {gVar.Prd2Rw.PartNumber}"
