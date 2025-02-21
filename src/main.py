@@ -50,7 +50,7 @@ class ClassApp(QMainWindow):
         if self.catia is None:
             try:
                 self.catia = self.PDM.connect_to_catia()
-                if self.catia is not None:                    
+                if self.catia is not None:
                     pass
             except CATerror as e:
                 self.catia = None
