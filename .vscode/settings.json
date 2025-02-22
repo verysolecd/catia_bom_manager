@@ -1,5 +1,17 @@
 
 {
     "python.autoComplete.extraPaths": ["catia_bom_manager"],
-    "python.analysis.extraPaths": ["catia_bom_manager"]
+    "python.analysis.extraPaths": [
+        "catia_bom_manager"
+    ],
+    "marscode.chatLanguage": "cn",
+    "marscode.codeCompletionPro": {
+        "enableCodeCompletionPro": true
+    },
+    "marscode.enableInlineCommand": true,
+    "marscode.enableCodelens": {
+        "enableInlineDocumentation": true,
+        "enableInlineUnitTest": false,
+        "enableInlineExplain": false
+    }
 }
