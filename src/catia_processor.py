@@ -62,6 +62,7 @@ class ClassPDM():
         self.catia = None
         self.active_document = None
         self.rootPrd = None
+        self.data_bom = []
 
     def connect_to_catia(self):
         try:
@@ -145,7 +146,7 @@ class ClassPDM():
             att[1].ValueList.Add(mbd)
 
         # 修改为正确的语法
-        for i in range(3, 6):
+        for i in range[2, 3, 4, 5]:
             pubs = refPrd.Publications
             if self._att_Value(pubs, attNames[i])[0] is None:
                 if i in [3, 4, 5]:
@@ -183,7 +184,7 @@ class ClassPDM():
             att_value = att.Value
             return [att, att_value]
         except Exception:
-            return [None, "N\\A"]
+            return [None, "N/A"]
 
     def init_Product(self, oPrd):
         refPrd = oPrd.ReferenceProduct
@@ -215,7 +216,11 @@ class ClassPDM():
         infoPrd[3] = oPrd.Name
         infoPrd[4] = self._countPrd(oPrd)
         usrp = refPrd.UserRefProperties
-        infoPrd[5] = self._att_Value(usrp, "iMass")[1]
+
+        # infoPrd[5] = self._att_Value(usrp, "iMass")[1]
+        mass_value = round(float(self._att_Value(usrp, "iMass")[1]), 3)
+        infoPrd[5] = f"{mass_value:.3f}"
+
         infoPrd[6] = self._att_Value(usrp, "iMaterial")[1]
         infoPrd[7] = self._att_Value(usrp, "iThickness")[1]
         try:
@@ -223,7 +228,7 @@ class ClassPDM():
                 "cm").DirectParameters
             infoPrd[8] = self._att_Value(colls, "iDensity")[1]
         except Exception:
-            infoPrd[8] = "N\\A"
+            infoPrd[8] = "N/A"
         return infoPrd
 
     def _countPrd(self, oPrd):
@@ -276,38 +281,17 @@ class ClassPDM():
         return total
 
     def recurPrd(self, oPrd, LV):
-        if not hasattr(self, '_workbook'):
-            self._workbook = Workbook()
-            self._worksheet = self._workbook.active
-            self._worksheet.append(bom_head)
 
-        data_bom = []
-        self._get_bom_data(oPrd, LV, data_bom)
-        for row_data in data_bom:
-            self._worksheet.append(row_data)
-        temp_file_path = "temp_bom.xlsx"
-        self._workbook.save(temp_file_path)
-        try:
-            if os.name == 'nt':  # Windows 系统
-                os.startfile(temp_file_path)
-            elif os.name == 'posix':  # Linux 系统
-                subprocess.call(['xdg-open', temp_file_path])
-            elif os.name == 'darwin':  # macOS 系统
-                subprocess.call(['open', temp_file_path])
-        except Exception as e:
-            print(f"无法打开文件: {e}")
+        all_rows_data = []
+        row_data = [
+            len(all_rows_data) + 1,  # 自动编号
+            LV,  # 层级值
+            *self.info_Prd(oPrd)  # 原有产品信息
+        ]
+        all_rows_data.append(row_data)
 
-        input("请手动保存 Excel 文件，保存完成后按回车键继续...")
-
-        try:        # 删除临时文件
-            os.remove(temp_file_path)
-        except Exception as e:
-            print(f"无法删除临时文件: {e}")
-        return self._workbook
-
-    def _get_bom_data(self, oPrd, LV, data_bom):
-        data_bom.append(self.info_Prd(oPrd))
+        # 递归处理子产品
         if oPrd.products.count > 0:
             for i in range(1, oPrd.products.count + 1):
                 child = oPrd.products.item(i)
-                self._get_bom_data(child, LV + 1, data_bom)
+                self._collect_bom_rows(child, LV + 1, all_rows_data)

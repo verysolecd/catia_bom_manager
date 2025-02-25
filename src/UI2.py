@@ -9,7 +9,7 @@ from src.UI3 import ClassUIM
 import sys
 import os
 # 全局变量
-from Vars import gVar
+from src.Vars import gVar
 # 自用全局变量
 header_style = """
             QHeaderView::section {

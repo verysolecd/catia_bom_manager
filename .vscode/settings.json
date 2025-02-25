@@ -10,7 +10,7 @@
     },
     "marscode.enableInlineCommand": true,
     "marscode.enableCodelens": {
-        "enableInlineDocumentation": true,
+        "enableInlineDocumentation": false,
         "enableInlineUnitTest": false,
         "enableInlineExplain": false
     }

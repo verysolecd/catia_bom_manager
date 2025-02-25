@@ -16,15 +16,13 @@ class ClassTDM():
         #     oItem = QTableWidgetItem(str(value))
         #     self.tableWidget.setItem(row, col_index, oItem)
 
-        for value, col in zip(data, cols_to_inject):
-            oItem = QTableWidgetItem(str(value))
-            self.tableWidget.setItem(row, col, oItem)
+        # 批量创建 QTableWidgetItem 对象
+        items = [QTableWidgetItem(str(value)) for value in data]
 
-    def inject_bom(self, data, xlsht):
-        for row, row_data in enumerate(data):
-            for col, value in enumerate(row_data):
-                oItem = QTableWidgetItem(str(value))
-                self.tableWidget.setItem(row, col, oItem)
+        # 批量设置表格项
+        for col_index, item in zip(cols_to_inject, items):
+            self.tableWidget.setItem(row, col_index, item)
+
 
 
     def extract_data(self, row):
@@ -42,3 +40,32 @@ class ClassTDM():
         ccol = 14
         self.tableWidget.setRowCount(crow)
         self.tableWidget.setColumnCount(ccol)
+
+    def generate_bom(self, data_bom):
+
+        from openpyxl import Workbook
+        if not hasattr(self, '_workbook'):
+            self._workbook = Workbook()
+            self._worksheet = self._workbook.active
+            self._worksheet.append(bom_head)
+        for row_data in data_bom:
+            self._worksheet.append(row_data)
+        temp_file_path = "temp_bom.xlsx"
+        self._workbook.save(temp_file_path)
+        try:
+            if os.name == 'nt':  # Windows 系统
+                os.startfile(temp_file_path)
+            elif os.name == 'posix':  # Linux 系统
+                subprocess.call(['xdg-open', temp_file_path])
+            elif os.name == 'darwin':  # macOS 系统
+                subprocess.call(['open', temp_file_path])
+        except Exception as e:
+            print(f"无法打开文件: {e}")
+
+        input("请手动保存 Excel 文件，保存完成后按回车键继续...")
+
+        try:        # 删除临时文件
+            os.remove(temp_file_path)
+        except Exception as e:
+            print(f"无法删除临时文件: {e}")
+        return self._workbook
