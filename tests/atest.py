@@ -3,6 +3,12 @@
 import win32com.client
 import win32api
 import win32con
+import os
+import subprocess
+import pandas as pd  # 添加pandas导入
+
+import numpy as np
+
 
 from src.data_processor import ClassTDM
 from src.catia_processor import ClassPDM
@@ -44,29 +50,30 @@ class test1(ClassPDM):
         return all_rows_data
 
     def inject_sht(self, data):
-        from openpyxl import Workbook
-        if not hasattr(self, '_workbook'):
-            self._workbook = Workbook()
-            self._worksheet = self._workbook.active
-        self._worksheet.append(data)
+
+        # 将二维数组转换为DataFrame（假设bomhead在父类中定义）
+        df = pd.DataFrame(data, columns=["序号", "层级", *self.bomhead])
+
         temp_file_path = "temp_bom.xlsx"
-        self._workbook.save(temp_file_path)
+        df.to_excel(temp_file_path, index=False)  # 一次性写入整个DataFrame
+
         try:
-            if os.name == 'nt':  # Windows 系统
+            if os.name == 'nt':
                 os.startfile(temp_file_path)
-            elif os.name == 'posix':  # Linux 系统
+            elif os.name == 'posix':
                 subprocess.call(['xdg-open', temp_file_path])
-            elif os.name == 'darwin':  # macOS 系统
+            elif os.name == 'darwin':
                 subprocess.call(['open', temp_file_path])
         except Exception as e:
             print(f"无法打开文件: {e}")
 
-        input("请手动保存 Excel 文件，保存完成后按回车键继续...")
+        input("按回车键删除临时文件...")
 
-        try:        # 删除临时文件
+        try:
             os.remove(temp_file_path)
         except Exception as e:
             print(f"无法删除临时文件: {e}")
+
         return self._workbook
 
 
