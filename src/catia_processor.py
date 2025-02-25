@@ -6,7 +6,7 @@ import win32com.client
 import pywintypes
 import win32api
 import win32con
-
+from openpyxl import Workbook
 
 
 # 全局参数
@@ -240,35 +240,40 @@ class ClassPDM():
         except Exception as e:
             pass
 
+        def recurPrd(self, oPrd, oRowNb, LV):  # 移除xlsht参数
 
+        if not hasattr(self, '_workbook'):
+            self._workbook = Workbook()
+            self._worksheet = self._workbook.active
+            headers = ["层级", "零件号", "名称", "定义",
+                       "实例名", "数量", "质量", "材料", "厚度", "密度"]
+            self._worksheet.append(headers)
+            oRowNb = 1  #
 
+        bDict = {}
+        self._bomRowPrd(oPrd, LV, self._worksheet, oRowNb)
+        if oPrd.products.count > 0:
+            for i in range(1, oPrd.products.count + 1):
+                child = oPrd.products.item(i)
+                if child.part_number not in bDict:
+                    bDict[child.part_number] = 1
+                    oRowNb += 1
+                    oRowNb = self.recurPrd(child, oRowNb, LV + 1)
+        return self._workbook  # 返回整个工作簿对象
 
-
-
-#
-#
-#     def recurPrd(oPrd, xlsht, oRowNb, LV):
-#         bDict = {}
-#         bomRowPrd(oPrd, LV, xlsht, oRowNb)
-#         if oPrd.products.count > 0:
-#             for i in range(1, oPrd.products.count + 1):
-#                 if oPrd.products.item(i).part_number not in bDict:
-#                     bDict[oPrd.products.item(i).part_number] = 1
-#                     oRowNb += 1
-#                     recurPrd(oPrd.products.item(i), xlsht, oRowNb, LV + 1)
-#     def Assmass(oPrd):
-#         total = 0
-#         children = oPrd.products
-#         if oPrd.products.count > 0:
-#             for i in range(1, children.count + 1):
-#                 total += Assmass(children.item(i)) + children.item(
-#                     i).reference_product.user_ref_properties.item("iMass").value
-#             oPrd.reference_product.user_ref_properties.item(
-#                 "iMass").value = total
-#         else:
-#             total = oPrd.reference_product.user_ref_properties.item(
-#                 "iMass").value
-#         return total
+    def Assmass(oPrd):
+        total = 0
+        children = oPrd.products
+        if oPrd.products.count > 0:
+            for i in range(1, children.count + 1):
+                total += Assmass(children.item(i)) + children.item(
+                    i).reference_product.user_ref_properties.item("iMass").value
+            oPrd.reference_product.user_ref_properties.item(
+                "iMass").value = total
+        else:
+            total = oPrd.reference_product.user_ref_properties.item(
+                "iMass").value
+        return total
 #     def Dictbros(oPrd):
 #         oDict = {}
 #         for i in range(1, oPrd.products.count + 1):
