@@ -7,11 +7,12 @@ import pywintypes
 import win32api
 import win32con
 from openpyxl import Workbook
-
-
-# 全局参数
+import os
+import subprocess
 from src.Vars import gVar
+# 全局参数
 
+bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
 allPN = {}
 att = [None] * 6
 attNames = ["cm",
@@ -31,7 +32,7 @@ iType = {
     "iThickness": "Length"
 }
 
-bomhead = [
+bom_head = [
     "No./n编号",
     "Layout/n层级",
     "PN/n零件号",
@@ -47,6 +48,7 @@ bomhead = [
     "TS/n抗拉",
     "YS/n屈服",
     "EL/n延伸率",]
+bom_cols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
 
 
@@ -142,7 +144,8 @@ class ClassPDM():
         if not self._att_Value(att[1], mbd.Name)[0]:
             att[1].ValueList.Add(mbd)
 
-        for i in range[3, 4, 5]:
+        # 修改为正确的语法
+        for i in range(3, 6):
             pubs = refPrd.Publications
             if self._att_Value(pubs, attNames[i])[0] is None:
                 if i in [3, 4, 5]:
@@ -182,30 +185,29 @@ class ClassPDM():
         except Exception:
             return [None, "N\\A"]
 
-    def init_Product(self, oPrd, allPN):
+    def init_Product(self, oPrd):
         refPrd = oPrd.ReferenceProduct
         if refPrd.PartNumber not in allPN:
             allPN[refPrd.PartNumber] = 1
             self.init_refPrd(refPrd)
         if refPrd.Products.count > 0:
             for product in refPrd.Products:
-                self.init_Product(product, allPN)
+                self.init_Product(product)
         allPN.clear()
 
 
     def attDefault(self, oPrd):
-        refPrd = oPrd.referenceproduct
-        att_default = [refPrd.partnumber,
-                       refPrd.nomenclature, refPrd.definition, oPrd.name]
+        # 修改为正确的大小写
+        refPrd = oPrd.ReferenceProduct
+        att_default = [refPrd.PartNumber,
+                       refPrd.Nomenclature, refPrd.Definition, oPrd.Name]
         # 0   1   2   3
         # pn nom def name
         return att_default
 
     def info_Prd(self, oPrd):
-
-        # iCols = [0, 2, 4, 6, 12, 12, 8, 13,11]
-        # bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
-        refPrd = oPrd.referenceproduct
+        # 修改为正确的大小写
+        refPrd = oPrd.ReferenceProduct
         infoPrd = [None]*9
         infoPrd[0] = refPrd.PartNumber
         infoPrd[1] = refPrd.Nomenclature
@@ -217,8 +219,8 @@ class ClassPDM():
         infoPrd[6] = self._att_Value(usrp, "iMaterial")[1]
         infoPrd[7] = self._att_Value(usrp, "iThickness")[1]
         try:
-            colls = refPrd.parent.part.parameters.rootparameterset.parametersets.item(
-                "cm").directparameters
+            colls = refPrd.Parent.Part.Parameters.RootParameterSet.ParameterSets.Item(
+                "cm").DirectParameters
             infoPrd[8] = self._att_Value(colls, "iDensity")[1]
         except Exception:
             infoPrd[8] = "N\\A"
@@ -258,23 +260,6 @@ class ClassPDM():
         except Exception as e:
             pass
 
-        def recurPrd(self, oPrd, oRowNb, LV):  # 移除xlsht参数
-
-        if not hasattr(self, '_workbook'):
-            self._workbook = Workbook()
-            self._worksheet = self._workbook.active
-            self._worksheet.append(bomhead)
-        oRowNb = 1
-        bDict = {}
-        self._bomRowPrd(oPrd, LV, self._worksheet, oRowNb)
-        if oPrd.products.count > 0:
-            for i in range(1, oPrd.products.count + 1):
-                child = oPrd.products.item(i)
-                if child.part_number not in bDict:
-                    bDict[child.part_number] = 1
-                    oRowNb += 1
-                    oRowNb = self.recurPrd(child, oRowNb, LV + 1)
-        return self._workbook  # 返回整个工作簿对象
 
     def Assmass(oPrd):
         total = 0
@@ -289,14 +274,40 @@ class ClassPDM():
             total = oPrd.reference_product.user_ref_properties.item(
                 "iMass").value
         return total
-#     def Dictbros(oPrd):
-#         oDict = {}
-#         for i in range(1, oPrd.products.count + 1):
-#             pn = oPrd.products.item(i).part_number
-#             if pn in oDict:
-#                 oDict[pn] += 1
-#             else:
-#                 oDict[pn] = 1
-#         return oDict
 
-#
+    def recurPrd(self, oPrd, LV):
+        if not hasattr(self, '_workbook'):
+            self._workbook = Workbook()
+            self._worksheet = self._workbook.active
+            self._worksheet.append(bom_head)
+
+        data_bom = []
+        self._get_bom_data(oPrd, LV, data_bom)
+        for row_data in data_bom:
+            self._worksheet.append(row_data)
+        temp_file_path = "temp_bom.xlsx"
+        self._workbook.save(temp_file_path)
+        try:
+            if os.name == 'nt':  # Windows 系统
+                os.startfile(temp_file_path)
+            elif os.name == 'posix':  # Linux 系统
+                subprocess.call(['xdg-open', temp_file_path])
+            elif os.name == 'darwin':  # macOS 系统
+                subprocess.call(['open', temp_file_path])
+        except Exception as e:
+            print(f"无法打开文件: {e}")
+
+        input("请手动保存 Excel 文件，保存完成后按回车键继续...")
+
+        try:        # 删除临时文件
+            os.remove(temp_file_path)
+        except Exception as e:
+            print(f"无法删除临时文件: {e}")
+        return self._workbook
+
+    def _get_bom_data(self, oPrd, LV, data_bom):
+        data_bom.append(self.info_Prd(oPrd))
+        if oPrd.products.count > 0:
+            for i in range(1, oPrd.products.count + 1):
+                child = oPrd.products.item(i)
+                self._get_bom_data(child, LV + 1, data_bom)

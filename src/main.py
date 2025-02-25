@@ -102,6 +102,9 @@ class ClassApp(QMainWindow):
         self.UIM.set_table_readonly(self.tableWidget)  # 设置只读
 
     def handle_button_3(self):     # 修改产品
+        if gVar.Prd2Rw is None:
+            QMessageBox.information(self, "提示", "当前未选择待修改产品")
+            return
         oRow = 0
         data = self.TDM.extract_data(oRow)
         self.PDM.attModify(gVar.Prd2Rw, data)
@@ -111,15 +114,26 @@ class ClassApp(QMainWindow):
             self.PDM.attModify(product, data)
 
     def handle_button_4(self):  # 初始化产品
+        if gVar.Prd2Rw is None:
+            QMessageBox.information(self, "提示", "当前未选择待修改产品")
+            return
         try:
             oprd = gVar.Prd2Rw
             self.PDM.init_Product(oprd)
         except Exception as e:
             self.log_error(f"产品初始化失败: {str(e)}")
-            imsg = "当前未选择待修改产品"
+            imsg = f"产品初始化失败: {str(e)}"
             QMessageBox.information(self, "提示", imsg)
 
-    def handle_button_5(self):
+    def handle_button_5(self):  # 生成Bom
+        try:
+            oprd = gVar.Prd2Rw
+            LV = 1
+            self.PDM.recurPrd(oprd, LV)
+        except Exception as e:
+            self.log_error(f"产品Bom生成失败: {str(e)}")
+            imsg = f"产品Bom生成失败: {str(e)}"
+            QMessageBox.information(self, "提示", imsg)
         pass
 
     def handle_button_6(self):  # 清空表格

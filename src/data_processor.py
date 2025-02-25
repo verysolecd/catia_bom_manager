@@ -20,6 +20,12 @@ class ClassTDM():
             oItem = QTableWidgetItem(str(value))
             self.tableWidget.setItem(row, col, oItem)
 
+    def inject_bom(self, data, xlsht):
+        for row, row_data in enumerate(data):
+            for col, value in enumerate(row_data):
+                oItem = QTableWidgetItem(str(value))
+                self.tableWidget.setItem(row, col, oItem)
+
 
     def extract_data(self, row):
         try:
