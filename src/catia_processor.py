@@ -183,7 +183,10 @@ class ClassPDM():
             att = collection.Item(itemName)
             att_value = att.Value
             return [att, att_value]
-        except Exception:
+        except pywintypes.com_error as e:
+            return [None, "N/A"]
+            # raise CATerror("属性错误")
+        except Exception as e:
             return [None, "N/A"]
 
     def init_Product(self, oPrd):
@@ -215,11 +218,16 @@ class ClassPDM():
         infoPrd[2] = refPrd.Definition
         infoPrd[3] = oPrd.Name
         infoPrd[4] = self._countPrd(oPrd)
+
         usrp = refPrd.UserRefProperties
 
-        # infoPrd[5] = self._att_Value(usrp, "iMass")[1]
-        mass_value = round(float(self._att_Value(usrp, "iMass")[1]), 3)
-        infoPrd[5] = f"{mass_value:.3f}"
+
+        infoPrd[5] = self._att_Value(usrp, "iMass")[1]
+        # try:
+        #     mass_value = round(float(self._att_Value(usrp, "iMass")[1]), 3)
+        #     infoPrd[5] = f"{mass_value:.3f}"
+        # except Exception:
+        #     infoPrd[5] = "N/A"
 
         infoPrd[6] = self._att_Value(usrp, "iMaterial")[1]
         infoPrd[7] = self._att_Value(usrp, "iThickness")[1]
@@ -280,18 +288,34 @@ class ClassPDM():
                 "iMass").value
         return total
 
-    def recurPrd(self, oPrd, LV):
+    def recurPrd(self, oPrd, LV, all_rows_data=None, counter=[0]):
+        # 初始化参数
+        if all_rows_data is None:
+            all_rows_data = []
+            counter[0] = 0  # 使用列表保持计数器状态
 
-        all_rows_data = []
+        counter[0] += 1  # 递增全局计数器
         row_data = [
-            len(all_rows_data) + 1,  # 自动编号
-            LV,  # 层级值
-            *self.info_Prd(oPrd)  # 原有产品信息
+            counter[0],  # 使用独立计数器代替len(all_rows_data)
+            LV,
+            *self.info_Prd(oPrd)
         ]
         all_rows_data.append(row_data)
 
-        # 递归处理子产品
-        if oPrd.products.count > 0:
-            for i in range(1, oPrd.products.count + 1):
-                child = oPrd.products.item(i)
-                self._collect_bom_rows(child, LV + 1, all_rows_data)
+        # 递归处理子产品（修正属性和方法名大小写）
+        if oPrd.Products.Count > 0:  # 修正为Products
+            for i in range(1, oPrd.Products.Count + 1):
+                child = oPrd.Products.Item(i)  # 修正为Item
+                self.recurPrd(child, LV + 1, all_rows_data,
+                              counter)  # 修正递归调用方法名
+
+        return all_rows_data  # 返回累积结果
+
+
+if __name__ == "__main__":
+
+    PDM = ClassPDM()
+    catia = PDM.connect_to_catia()
+    rootPrd = catia.ActiveDocument.Product
+    data = PDM.recurPrd(rootPrd, 1)
+    print(data)
