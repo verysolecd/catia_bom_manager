@@ -31,6 +31,24 @@ iType = {
     "iThickness": "Length"
 }
 
+bomhead = [
+    "No./n编号",
+    "Layout/n层级",
+    "PN/n零件号",
+    "Nomenclature/n英文名称",
+    "Definition/n中文名称",
+    "Picture/n图像",
+    "Quantity/n数量(PCS)",
+    "Weight/n单质量",
+    "Total Weight/n总质量",
+    "",
+    "Material/n材料",
+    "Thickness/n厚度(mm)",
+    "TS/n抗拉",
+    "YS/n屈服",
+    "EL/n延伸率",]
+
+
 
 
 class CATerror(Exception):
@@ -245,11 +263,8 @@ class ClassPDM():
         if not hasattr(self, '_workbook'):
             self._workbook = Workbook()
             self._worksheet = self._workbook.active
-            headers = ["层级", "零件号", "名称", "定义",
-                       "实例名", "数量", "质量", "材料", "厚度", "密度"]
-            self._worksheet.append(headers)
-            oRowNb = 1  #
-
+            self._worksheet.append(bomhead)
+        oRowNb = 1
         bDict = {}
         self._bomRowPrd(oPrd, LV, self._worksheet, oRowNb)
         if oPrd.products.count > 0:
