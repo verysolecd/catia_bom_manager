@@ -35,7 +35,7 @@ class ClassApp(QMainWindow):
 
     def get_Buttons(self):
         return [
-            btn for i in range(10)  # 使用有限范围代替无限count
+            btn for i in range(10)
             if (btn := getattr(self.UI, f"pushButton_{i}", None)) is not None
         ][:7]
 
