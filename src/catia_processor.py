@@ -222,19 +222,19 @@ class ClassPDM():
         for att_name, new_value in zip(att_names, data):
             try:
                 att_value = getattr(refPrd, att_name)
-                if new_value and new_value != att_value:
+                if new_value and new_value != "" and new_value != att_value:
                     setattr(oPrd, att_name, new_value)
             except IndexError:
                 pass
         try:
             # data[4]  # iMateiral
-            if data[4] and data[4] != refPrd.UserRefProperties.Item("iMaterial").Value:
+            if data[4] and data[4] != "" and data[4] != refPrd.UserRefProperties.Item("iMaterial").Value:
                 refPrd.UserRefProperties.Item("iMaterial").Value = data[4]
         except Exception as e:
             pass
         try:
             # data[5]  # iDensity
-            if data[5] and data[5] != refPrd.parent.part.parameters.rootparameterset.parametersets.Item(
+            if data[5] and data[5] != "" and data[5] != refPrd.parent.part.parameters.rootparameterset.parametersets.Item(
                     "cm").DirectParameters.Item("iDensity").Value:
                 refPrd.UserRefProperties.Item("iDensity").Value = data[5]
         except Exception as e:
