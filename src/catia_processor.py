@@ -9,7 +9,6 @@ import win32con
 from openpyxl import Workbook
 import os
 import subprocess
-from src.Vars import gVar
 # 全局参数
 
 all_rows_data = None
@@ -302,30 +301,20 @@ class ClassPDM():
             counter = [0]  # 使用列表保持计数器状态
 
         counter[0] += 1  # 递增全局计数器
-        row_data = [
-            counter[0], 
-            LV,
-            *self.info_Prd(oPrd)
-        ]
+        row_data = [counter[0], LV, *self.info_Prd(oPrd)]
         all_rows_data.append(row_data)
 
         # 递归处理子产品（修正属性和方法名大小写）
-        if oPrd.Products.Count > 0:  # 修正为Products
+        if oPrd.Products.Count > 0:
             bdict = {}
-            for i in range(1, oPrd.Products.Count + 1):
-                child = oPrd.Products.Item(i)  # 修正为Item
-                if child.PartNumber in bdict:
-                    pass
-                else:
-                    bdict[child.PartNumber] = 1
-                    for i in range(1, oPrd.Products.Count + 1):
-                        child = oPrd.Products.Item(i)  # 修正为Item
-                        self.recurPrd(child, LV + 1)  # 修正递归调用方法名
-        return all_rows_data  # 返回累积结果
+            for idx in range(1, oPrd.Products.Count + 1):
+                child = oPrd.Products.Item(idx)
+                part_number = child.PartNumber
+                if part_number not in bdict:
+                    bdict[part_number] = 1
+                    self.recurPrd(child, LV + 1)
+        return all_rows_data
 
-        print(all_rows_data)
-
-        return all_rows_data  # 返回累积结果
 
 if __name__ == "__main__":
 

@@ -1,10 +1,16 @@
-# -*- coding: utf-8 -*-
-# Form implementation generated from reading ui file 'mainWindow.ui'
-# Created by: PyQt5 UI code generator 5.15.11
+
+
+
+# 获取当前文件所在目录
+
+import sys
+import os
 
 from PyQt5 import QtCore, QtWidgets, QtGui
-# 全局变量
 from src.Vars import gVar
+
+# # 全局变量
+# from src.Vars import gVar
 
 class ClassUIM(object):
     def __init__(self):

@@ -11,7 +11,7 @@ pyinstaller - -onefile - -add-data "resources/icons;resources/icons" src/main.py
 
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
-
+-i https: // pypi.tuna.tsinghua.edu.cn/simple/
 
 
 目前国内比较好用的pypi源有：

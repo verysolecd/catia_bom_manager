@@ -6,6 +6,12 @@ from functools import partial
 from PyQt5.QtWidgets import QMessageBox
 # COM类
 import sys
+
+# 将 src 目录添加到 sys.path
+src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
+sys.path.append(src_path)
+
+
 #  自建类
 from src.UI2 import ClassUI
 from src.data_processor import ClassTDM
@@ -14,7 +20,7 @@ from src.catia_processor import CATerror
 from src.UI3 import ClassUIM
 
 # 全局变量
-from Vars import gVar
+from src.Vars import gVar
 
 
 class ClassApp(QMainWindow):
@@ -129,6 +135,8 @@ class ClassApp(QMainWindow):
             oprd = gVar.Prd2Rw
             LV = 1
             data = self.PDM.recurPrd(oprd, LV)
+            print(data)
+            self.TDM.generate_bom(data)
 
         except Exception as e:
             self.log_error(f"产品Bom生成失败: {str(e)}")

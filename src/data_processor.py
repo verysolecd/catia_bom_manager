@@ -1,5 +1,12 @@
 from PyQt5.QtWidgets import QTableWidgetItem
 import logging
+from contextlib import contextmanager
+import logging
+import pandas as pd
+import os
+import subprocess
+from tempfile import NamedTemporaryFile
+from PyQt5.QtWidgets import QMessageBox
 # 全局变量
 cols_to_extract = [1, 3, 5, 7, 9, 11]
 cols_to_inject = [0, 2, 4, 6, 12, 12, 8, 13, 10]
@@ -23,8 +30,6 @@ class ClassTDM():
         for col_index, item in zip(cols_to_inject, items):
             self.tableWidget.setItem(row, col_index, item)
 
-
-
     def extract_data(self, row):
         try:
             data = [self.tableWidget.item(row, col).text() if self.tableWidget.item(
@@ -44,52 +49,47 @@ class ClassTDM():
         self.tableWidget.setRowCount(crow)
         self.tableWidget.setColumnCount(ccol)
 
-    def generate_bom(self, data_bom):
-        from openpyxl import Workbook
-        import os
-        import subprocess
-        from tempfile import NamedTemporaryFile
-
+    def generate_bom(self, data):
         try:
-            # 创建新工作簿
-            wb = Workbook()
-            ws = wb.active
+            # 使用传入的 data 创建 DataFrame
+            df = pd.DataFrame(data)
 
-            # 添加标题（假设第一行已有标题）
-            # ws.append(["序号", "零件号", "名称", "数量", "材料", ...])  # 根据实际列名添加
-
-            # 写入数据从第二行开始
-            for row_data in data_bom:
-                ws.append(row_data)
-
-            # 创建临时文件
+            # 使用 NamedTemporaryFile 创建临时文件
             with NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
                 temp_path = tmp.name
-                wb.save(temp_path)
+                # 使用 pandas 导出 Excel
+                df.to_excel(temp_path, index=False, engine='openpyxl')
 
-            # 自动打开文件
-            if os.name == 'nt':
-                os.startfile(temp_path)
-            elif os.name == 'posix':
-                subprocess.call(['xdg-open', temp_path])
-            elif os.name == 'darwin':
-                subprocess.call(['open', temp_path])
+                # 自动打开文件
+                if os.name == 'nt':
+                    os.startfile(temp_path)
+                elif os.name == 'posix':
+                    subprocess.call(['xdg-open', temp_path])
+                elif os.name == 'darwin':
+                    subprocess.call(['open', temp_path])
+            result = QMessageBox.information(None, "提示",
+                                             "请完成对BOM的操作后保存，然后继续操作。\n"
+                                             "文件路径：" + temp_path,
+                                             QMessageBox.Ok)
 
-            # 等待用户确认
-            QMessageBox.information(None, "提示",
-                                    "请保存生成的BOM文件后，点击确定继续操作。\n"
-                                    "文件路径：" + temp_path,
-                                    QMessageBox.Ok)
+            if result == QMessageBox.Ok:
+                # 用户点击确定后，尝试删除临时文件
+                try:
+                    os.remove(temp_path)
+                    logging.info(f"临时文件 {temp_path} 已成功删除。")
+                except Exception as e:
+                    logging.warning(f"临时文件清理失败: {str(e)}")
 
         except Exception as e:
+            # 导入 logging 模块
             logging.error(f"BOM生成失败: {str(e)}")
             raise
         finally:
             # 清理临时文件
             if 'temp_path' in locals():
                 try:
-                    os.remove(temp_path)
+                    # os.remove(temp_path)
+                    print("临时文件已删除")
                 except Exception as e:
                     logging.warning(f"临时文件清理失败: {str(e)}")
-
-        return wb
+        return temp_path
