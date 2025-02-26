@@ -12,6 +12,8 @@ import subprocess
 from src.Vars import gVar
 # 全局参数
 
+all_rows_data = None
+counter = 0
 bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
 allPN = {}
 att = [None] * 6
@@ -63,6 +65,9 @@ class ClassPDM():
         self.active_document = None
         self.rootPrd = None
         self.data_bom = []
+        global all_rows_data, counter
+        all_rows_data = []
+        counter = [0]  # 使用列表保持计数器状态
 
     def connect_to_catia(self):
         try:
@@ -269,7 +274,8 @@ class ClassPDM():
             # data[5]  # iDensity
             if data[5] and data[5] != "" and data[5] != refPrd.parent.part.parameters.rootparameterset.parametersets.Item(
                     "cm").DirectParameters.Item("iDensity").Value:
-                refPrd.UserRefProperties.Item("iDensity").Value = data[5]
+                refPrd.parent.part.parameters.rootparameterset.parametersets.Item(
+                    "cm").DirectParameters.Item("iDensity").Value = data[5]
         except Exception as e:
             pass
 
@@ -288,15 +294,16 @@ class ClassPDM():
                 "iMass").value
         return total
 
-    def recurPrd(self, oPrd, LV, all_rows_data=None, counter=[0]):
+    def recurPrd(self, oPrd, LV):
         # 初始化参数
+        global all_rows_data, counter
         if all_rows_data is None:
             all_rows_data = []
-            counter[0] = 0  # 使用列表保持计数器状态
+            counter = [0]  # 使用列表保持计数器状态
 
         counter[0] += 1  # 递增全局计数器
         row_data = [
-            counter[0],  # 使用独立计数器代替len(all_rows_data)
+            counter[0], 
             LV,
             *self.info_Prd(oPrd)
         ]
@@ -304,13 +311,21 @@ class ClassPDM():
 
         # 递归处理子产品（修正属性和方法名大小写）
         if oPrd.Products.Count > 0:  # 修正为Products
+            bdict = {}
             for i in range(1, oPrd.Products.Count + 1):
                 child = oPrd.Products.Item(i)  # 修正为Item
-                self.recurPrd(child, LV + 1, all_rows_data,
-                              counter)  # 修正递归调用方法名
-
+                if child.PartNumber in bdict:
+                    pass
+                else:
+                    bdict[child.PartNumber] = 1
+                    for i in range(1, oPrd.Products.Count + 1):
+                        child = oPrd.Products.Item(i)  # 修正为Item
+                        self.recurPrd(child, LV + 1)  # 修正递归调用方法名
         return all_rows_data  # 返回累积结果
 
+        print(all_rows_data)
+
+        return all_rows_data  # 返回累积结果
 
 if __name__ == "__main__":
 

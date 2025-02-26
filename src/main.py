@@ -28,7 +28,6 @@ class ClassApp(QMainWindow):
         self.TDM = ClassTDM(self.UI.tableWidget)
         self.PDM = ClassPDM()
         self.catia = None
-
     def setup_buttons(self):
         self.buttons = self.get_Buttons()
         self.connect_button_handlers()
@@ -129,7 +128,8 @@ class ClassApp(QMainWindow):
         try:
             oprd = gVar.Prd2Rw
             LV = 1
-            self.PDM.recurPrd(oprd, LV)
+            data = self.PDM.recurPrd(oprd, LV)
+
         except Exception as e:
             self.log_error(f"产品Bom生成失败: {str(e)}")
             imsg = f"产品Bom生成失败: {str(e)}"
@@ -149,8 +149,10 @@ class ClassApp(QMainWindow):
             if reply == QMessageBox.Yes:
                 self.catia.visible = True
                 gVar.Prd2Rw = self.PDM.selPrd()
+                gVar.Prd2Rw.ApplyWorkMode(2)
             elif reply == QMessageBox.No:
                 gVar.Prd2Rw = self.PDM.catia.activedocument.product
+                gVar.Prd2Rw.ApplyWorkMode(2)
             else:
                 gVar.Prd2Rw = None
                 return
