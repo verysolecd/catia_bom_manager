@@ -125,7 +125,8 @@ class ClassApp(QMainWindow):
             return
         try:
             oprd = gVar.Prd2Rw
-            self.PDM.init_Product(oprd)
+            QMessageBox.information(self, "提示", "还没开发好呢")
+            # self.PDM.init_Product(oprd)
         except Exception as e:
             self.log_error(f"产品初始化失败: {str(e)}")
             imsg = f"产品初始化失败: {str(e)}"

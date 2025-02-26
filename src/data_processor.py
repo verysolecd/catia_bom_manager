@@ -3,6 +3,10 @@ import logging
 from contextlib import contextmanager
 import logging
 import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.styles import Alignment
+
+
 import os
 import subprocess
 from tempfile import NamedTemporaryFile
@@ -12,39 +16,39 @@ cols_to_extract = [1, 3, 5, 7, 9, 11]
 cols_to_inject = [0, 2, 4, 6, 12, 12, 8, 13, 10]
 bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
 # bom_head = [
-#     "No./n编号",
-#     "Layout/n层级",
-#     "PN/n零件号",
-#     "Nomenclature/n英文名称",
-#     "Definition/n中文名称",
-#     "Picture/n图像",
-#     "Quantity/n数量(PCS)",
-#     "Weight/n单质量",
-#     "Total Weight/n总质量",
+#     "No.\n编号",
+#     "Layout\n层级",
+#     "PN\n零件号",
+#     "Nomenclature\n英文名称",
+#     "Definition\n中文名称",
+#     "Picture\n图像",
+#     "Quantity\n数量(PCS)",
+#     "Weight\n单质量",
+#     "Total Weight\n总质量",
 #     "",
-#     "Material/n材料",
-#     "Thickness/n厚度(mm)",
-#     "TS/n抗拉",
-#     "YS/n屈服",
-#     "EL/n延伸率",]
+#     "Material\n材料",
+#     "Thickness\n厚度(mm)",
+#     "TS\n抗拉",
+#     "YS\n屈服",
+#     "EL\n延伸率",]
 
 bom_head = [
-    "No./n编号",
-    "Layout/n层级",
-    "PN/n零件号",
-    "Nomenclature/n英文名称",
-    "Definition/n中文名称",
-    "Picture/n图像",
-    "Quantity/n数量(PCS)",
-    "Weight/n单质量",
-    # "Total Weight/n总质量",
+    "No.\n编号",
+    "Layout\n层级",
+    "PN\n零件号",
+    "Nomenclature\n英文名称",
+    "Definition\n中文名称",
+    "Picture\n图像",
+    "Quantity\n数量(PCS)",
+    "Weight\n单质量",
+    # "Total Weight\n总质量",
     # "",
-    "Material/n材料",
-    "Thickness/n厚度(mm)",
-    "Density/n密度",]
-# "TS/n抗拉",
-# "YS/n屈服",
-# "EL/n延伸率",
+    "Material\n材料",
+    "Thickness\n厚度(mm)",
+    "Density\n密度",]
+# "TS\n抗拉",
+# "YS\n屈服",
+# "EL\n延伸率",
 
 bom_cols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
@@ -94,6 +98,26 @@ class ClassTDM():
                 temp_path = tmp.name
                 # 使用 pandas 导出 Excel
                 df.to_excel(temp_path, index=False, engine='openpyxl')
+                wb = load_workbook(temp_path)
+                ws = wb.active
+
+                for row_num, row in enumerate(ws.iter_rows(min_row=2), start=2):
+                    cell_value = row[1].value  # 第二列
+                    if cell_value is not None:
+                        ws.row_dimensions[row_num].outlineLevel = cell_value - 1
+                second_column = ws.column_dimensions["B"]
+                for row in ws.iter_rows(min_row=1, min_col=2, max_col=2):
+                    for cell in row:
+                        new_alignment = Alignment(
+                            horizontal='left',
+                            vertical=cell.alignment.vertical,
+                            indent=int(cell.value)-1 if cell.value and str(
+                                cell.value).isdigit() else 0
+                        )
+                        cell.alignment = new_alignment
+
+                wb.save(temp_path)
+                # 自动打开文件
 
                 # 自动打开文件
                 if os.name == 'nt':
