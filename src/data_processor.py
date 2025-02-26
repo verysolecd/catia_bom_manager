@@ -11,6 +11,23 @@ from PyQt5.QtWidgets import QMessageBox
 cols_to_extract = [1, 3, 5, 7, 9, 11]
 cols_to_inject = [0, 2, 4, 6, 12, 12, 8, 13, 10]
 bom_cols = [0, 1, 2, 3, 4, 6, 7, 10, 11]
+# bom_head = [
+#     "No./n编号",
+#     "Layout/n层级",
+#     "PN/n零件号",
+#     "Nomenclature/n英文名称",
+#     "Definition/n中文名称",
+#     "Picture/n图像",
+#     "Quantity/n数量(PCS)",
+#     "Weight/n单质量",
+#     "Total Weight/n总质量",
+#     "",
+#     "Material/n材料",
+#     "Thickness/n厚度(mm)",
+#     "TS/n抗拉",
+#     "YS/n屈服",
+#     "EL/n延伸率",]
+
 bom_head = [
     "No./n编号",
     "Layout/n层级",
@@ -20,13 +37,15 @@ bom_head = [
     "Picture/n图像",
     "Quantity/n数量(PCS)",
     "Weight/n单质量",
-    "Total Weight/n总质量",
-    "",
+    # "Total Weight/n总质量",
+    # "",
     "Material/n材料",
     "Thickness/n厚度(mm)",
-    "TS/n抗拉",
-    "YS/n屈服",
-    "EL/n延伸率",]
+    "Density/n密度",]
+# "TS/n抗拉",
+# "YS/n屈服",
+# "EL/n延伸率",
+
 bom_cols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 
 class ClassTDM():
@@ -68,7 +87,7 @@ class ClassTDM():
     def generate_bom(self, data):
         try:
             # 使用传入的 data 创建 DataFrame
-            df = pd.DataFrame(data)
+            df = pd.DataFrame(data, columns=bom_head)
 
             # 使用 NamedTemporaryFile 创建临时文件
             with NamedTemporaryFile(suffix=".xlsx", delete=False) as tmp:
