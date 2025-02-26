@@ -6,6 +6,7 @@ from functools import partial
 from PyQt5.QtWidgets import QMessageBox
 # COM类
 import sys
+import os
 
 # 将 src 目录添加到 sys.path
 src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
