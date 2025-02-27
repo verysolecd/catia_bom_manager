@@ -2,14 +2,19 @@
 # Form implementation generated from reading ui file 'mainWindow.ui'
 # Created by: PyQt5 UI code generator 5.15.11
 
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QGridLayout
 from PyQt5.QtGui import QPixmap
-from src.UI3 import ClassUIM
 import sys
 import os
-# 全局变量
+
+# 自定义类
 from src.Vars import gVar
+from src.UI3 import ClassUIM
+
+
+
 # 自用全局变量
 header_style = """
             QHeaderView::section {
@@ -40,7 +45,7 @@ header_labels = [
 menu_names = ["菜单", "设置", "关于", "作者"]
 btnames = [
     "选择\n待产品", "释放\n待修改产品", "读取\n产品",
-    "修改\n产品", "初始化\n产品", "生成\n产品BOM",
+    "修改\n产品", "初始化\n产品--待开发", "生成\n产品BOM",
     "清理程序界面"
 ]
 

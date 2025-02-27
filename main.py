@@ -6,6 +6,13 @@ from functools import partial
 from PyQt5.QtWidgets import QMessageBox
 # COM类
 import sys
+import os
+
+# 将 src 目录添加到 sys.path
+src_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
+sys.path.append(src_path)
+
+
 #  自建类
 from src.UI2 import ClassUI
 from src.data_processor import ClassTDM
@@ -14,7 +21,7 @@ from src.catia_processor import CATerror
 from src.UI3 import ClassUIM
 
 # 全局变量
-from Vars import gVar
+from src.Vars import gVar
 
 
 class ClassApp(QMainWindow):
@@ -28,7 +35,6 @@ class ClassApp(QMainWindow):
         self.TDM = ClassTDM(self.UI.tableWidget)
         self.PDM = ClassPDM()
         self.catia = None
-
     def setup_buttons(self):
         self.buttons = self.get_Buttons()
         self.connect_button_handlers()
@@ -119,7 +125,8 @@ class ClassApp(QMainWindow):
             return
         try:
             oprd = gVar.Prd2Rw
-            self.PDM.init_Product(oprd)
+            QMessageBox.information(self, "提示", "还没开发好呢")
+            # self.PDM.init_Product(oprd)
         except Exception as e:
             self.log_error(f"产品初始化失败: {str(e)}")
             imsg = f"产品初始化失败: {str(e)}"
@@ -129,7 +136,10 @@ class ClassApp(QMainWindow):
         try:
             oprd = gVar.Prd2Rw
             LV = 1
-            self.PDM.recurPrd(oprd, LV)
+            data = self.PDM.recurPrd(oprd, LV)
+            print(data)
+            self.TDM.generate_bom(data)
+
         except Exception as e:
             self.log_error(f"产品Bom生成失败: {str(e)}")
             imsg = f"产品Bom生成失败: {str(e)}"
@@ -149,8 +159,10 @@ class ClassApp(QMainWindow):
             if reply == QMessageBox.Yes:
                 self.catia.visible = True
                 gVar.Prd2Rw = self.PDM.selPrd()
+                gVar.Prd2Rw.ApplyWorkMode(2)
             elif reply == QMessageBox.No:
                 gVar.Prd2Rw = self.PDM.catia.activedocument.product
+                gVar.Prd2Rw.ApplyWorkMode(2)
             else:
                 gVar.Prd2Rw = None
                 return
